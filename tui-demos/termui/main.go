@@ -1,9 +1,3 @@
-// Copyright 2017 Zack Guo <zack.y.guo@gmail.com>. All rights reserved.
-// Use of this source code is governed by a MIT license that can
-// be found in the LICENSE file.
-
-// +build ignore
-
 package main
 
 import (
@@ -21,14 +15,14 @@ func main() {
 
 	header := widgets.NewParagraph()
 	header.Text = "Press q to quit, Press h or l to switch tabs"
-	header.SetRect(0, 0, 50, 1)
+	header.SetRect(0, 0, 90, 10)
 	header.Border = false
 	header.TextStyle.Bg = ui.ColorBlue
 
 	p2 := widgets.NewParagraph()
 	p2.Text = "Press q to quit\nPress h or l to switch tabs\n"
 	p2.Title = "Keys"
-	p2.SetRect(5, 5, 40, 15)
+	p2.SetRect(6, 5, 40, 15)
 	p2.BorderStyle.Fg = ui.ColorYellow
 
 	bc := widgets.NewBarChart()
@@ -67,7 +61,7 @@ func main() {
 		case "l":
 			tabpane.FocusRight()
 			ui.Clear()
-			ui.Render(header, tabpane)
+			ui.Render(header, tabpane, p2)
 			renderTab()
 		}
 	}
