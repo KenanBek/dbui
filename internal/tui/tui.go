@@ -33,24 +33,34 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	t.ContentList = tview.NewList().ShowSecondaryText(false)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
 
-	for i, table := range t.data.ListTables("") {
-		t.TablesList.AddItem(table, "", rune(i), nil)
+	for _, table := range t.data.ListTables("dbui") {
+		t.TablesList.AddItem(table, "", 0, nil)
 	}
 	t.TablesList.SetSelectedFunc(t.TableSelected)
 
-	for i, schema := range t.data.ListSchemas() {
-		t.SchemasList.AddItem(schema, "", rune(i), nil)
+	for _, schema := range t.data.ListSchemas() {
+		t.SchemasList.AddItem(schema, "", 0, nil)
 	}
 
 	t.Grid = tview.NewGrid().
 		SetRows(3, 0, 2).
 		SetColumns(30, 0, 30).
 		SetBorders(true).
-		AddItem(t.newPrimitive("Header"), 0, 0, 1, 3, 0, 0, false).
-		AddItem(t.newPrimitive("Select and press ENTER"), 2, 0, 1, 3, 0, 0, false).
+		AddItem(t.newPrimitive("Select table and press ENTER | Ctrl+T Focus on tables | Ctrl+P Focus on preview"), 0, 0, 1, 3, 0, 0, false).
+		AddItem(t.newPrimitive("Ctrl+C EXIT"), 2, 0, 1, 3, 0, 0, false).
 		AddItem(t.TablesList, 1, 0, 1, 1, 0, 0, true).
 		AddItem(t.ContentList, 1, 1, 1, 1, 0, 0, false).
 		AddItem(t.SchemasList, 1, 2, 1, 1, 0, 0, false)
+
+	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyCtrlT:
+			t.App.SetFocus(t.TablesList)
+		case tcell.KeyCtrlP:
+			t.App.SetFocus(t.ContentList)
+		}
+		return event
+	})
 
 	return &t
 }
