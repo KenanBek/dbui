@@ -38,7 +38,7 @@ func (Dummy) DescribeTable(schema, table string) [][]string {
 	}
 }
 
-func (Dummy) Query(schema, table string) [][]string {
+func (Dummy) Query(schema string) [][]string {
 	return [][]string{
 		{"qabc", "qadc"},
 		{"qbbc", "qbdc"},

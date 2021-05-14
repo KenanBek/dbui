@@ -9,10 +9,10 @@ import (
 
 type DataSource interface {
 	ListSchemas() []string
-	ListTables(string) []string
-	PreviewTable(string, string) [][]string // PreviewTable returns preview data by schema and table name.
-	DescribeTable(string, string) [][]string
-	Query(string, string) [][]string
+	ListTables(schema string) []string
+	PreviewTable(schema string, table string) [][]string // PreviewTable returns preview data by schema and table name.
+	DescribeTable(schema string, table string) [][]string
+	Query(schema string) [][]string
 }
 
 type MyTUI struct {
@@ -44,7 +44,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 		SetRows(3, 0, 2).
 		SetColumns(30, 0, 30).
 		SetBorders(false).
-		AddItem(t.newPrimitive("Select table and press ENTER | Ctrl+t tables | Ctrl+d data | Ctrl+s schemas"), 0, 0, 1, 3, 0, 0, false).
+		AddItem(t.newPrimitive("Select table and press ENTER | Ctrl+t tables | Ctrl+d data | Ctrl+s schemas | Ctrl+r refresh"), 0, 0, 1, 3, 0, 0, false).
 		AddItem(t.newPrimitive("Ctrl+c EXIT"), 2, 0, 1, 3, 0, 0, false).
 		AddItem(t.TablesList, 1, 0, 1, 1, 0, 0, true).
 		AddItem(t.DataList, 1, 1, 1, 1, 0, 0, false).
@@ -74,8 +74,15 @@ func (t *MyTUI) LoadData() {
 	t.DataList.Clear()
 	t.SchemasList.Clear()
 
-	// TODO: List tables of the first scheme.
-	for _, table := range t.data.ListTables("dbui") {
+	var firstDB string
+	dbs := t.data.ListSchemas()
+	if len(dbs) > 0 {
+		firstDB = dbs[0]
+	} else {
+		return
+	}
+
+	for _, table := range t.data.ListTables(firstDB) {
 		t.TablesList.AddItem(table, "", 0, nil)
 	}
 	for _, schema := range t.data.ListSchemas() {
