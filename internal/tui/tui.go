@@ -100,6 +100,8 @@ func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string,
 	for _, table := range t.data.ListTables(mainText) {
 		t.TablesList.AddItem(table, "", 0, nil)
 	}
+
+	t.App.SetFocus(t.TablesList)
 }
 
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
