@@ -37,15 +37,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	t.DataList.SetBorder(true)
 	t.SchemasList.SetBorder(true)
 
-	// TODO: List tables of the first scheme.
-	for _, table := range t.data.ListTables("dbui") {
-		t.TablesList.AddItem(table, "", 0, nil)
-	}
 	t.TablesList.SetSelectedFunc(t.TableSelected)
-
-	for _, schema := range t.data.ListSchemas() {
-		t.SchemasList.AddItem(schema, "", 0, nil)
-	}
 	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
 
 	t.Grid = tview.NewGrid().
@@ -66,11 +58,29 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 			t.App.SetFocus(t.DataList)
 		case tcell.KeyCtrlS:
 			t.App.SetFocus(t.SchemasList)
+		case tcell.KeyCtrlR:
+			t.LoadData()
 		}
 		return event
 	})
 
+	t.LoadData()
+
 	return &t
+}
+
+func (t *MyTUI) LoadData() {
+	t.TablesList.Clear()
+	t.DataList.Clear()
+	t.SchemasList.Clear()
+
+	// TODO: List tables of the first scheme.
+	for _, table := range t.data.ListTables("dbui") {
+		t.TablesList.AddItem(table, "", 0, nil)
+	}
+	for _, schema := range t.data.ListSchemas() {
+		t.SchemasList.AddItem(schema, "", 0, nil)
+	}
 }
 
 func (t *MyTUI) Start() error {
