@@ -21,7 +21,7 @@ type MyTUI struct {
 	App         *tview.Application
 	Grid        *tview.Grid
 	TablesList  *tview.List
-	ContentList *tview.List
+	DataList    *tview.List
 	SchemasList *tview.List
 }
 
@@ -30,9 +30,14 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 
 	t.App = tview.NewApplication()
 	t.TablesList = tview.NewList().ShowSecondaryText(false)
-	t.ContentList = tview.NewList().ShowSecondaryText(false)
+	t.DataList = tview.NewList().ShowSecondaryText(false)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
 
+	t.TablesList.SetBorder(true)
+	t.DataList.SetBorder(true)
+	t.SchemasList.SetBorder(true)
+
+	// TODO: List tables of the first scheme.
 	for _, table := range t.data.ListTables("dbui") {
 		t.TablesList.AddItem(table, "", 0, nil)
 	}
@@ -41,23 +46,26 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	for _, schema := range t.data.ListSchemas() {
 		t.SchemasList.AddItem(schema, "", 0, nil)
 	}
+	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
 
 	t.Grid = tview.NewGrid().
 		SetRows(3, 0, 2).
 		SetColumns(30, 0, 30).
-		SetBorders(true).
-		AddItem(t.newPrimitive("Select table and press ENTER | Ctrl+T Focus on tables | Ctrl+P Focus on preview"), 0, 0, 1, 3, 0, 0, false).
-		AddItem(t.newPrimitive("Ctrl+C EXIT"), 2, 0, 1, 3, 0, 0, false).
+		SetBorders(false).
+		AddItem(t.newPrimitive("Select table and press ENTER | Ctrl+t tables | Ctrl+d data | Ctrl+s schemas"), 0, 0, 1, 3, 0, 0, false).
+		AddItem(t.newPrimitive("Ctrl+c EXIT"), 2, 0, 1, 3, 0, 0, false).
 		AddItem(t.TablesList, 1, 0, 1, 1, 0, 0, true).
-		AddItem(t.ContentList, 1, 1, 1, 1, 0, 0, false).
+		AddItem(t.DataList, 1, 1, 1, 1, 0, 0, false).
 		AddItem(t.SchemasList, 1, 2, 1, 1, 0, 0, false)
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlT:
 			t.App.SetFocus(t.TablesList)
-		case tcell.KeyCtrlP:
-			t.App.SetFocus(t.ContentList)
+		case tcell.KeyCtrlD:
+			t.App.SetFocus(t.DataList)
+		case tcell.KeyCtrlS:
+			t.App.SetFocus(t.SchemasList)
 		}
 		return event
 	})
@@ -69,8 +77,16 @@ func (t *MyTUI) Start() error {
 	return t.App.SetRoot(t.Grid, true).EnableMouse(true).Run()
 }
 
+func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string, shortcut rune) {
+	t.TablesList.Clear()
+
+	for _, table := range t.data.ListTables(mainText) {
+		t.TablesList.AddItem(table, "", 0, nil)
+	}
+}
+
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	t.ContentList.AddItem(fmt.Sprintf("Table %s with index %d selected", mainText, index), "", 0, nil)
+	t.DataList.AddItem(fmt.Sprintf("Table %s with index %d selected", mainText, index), "", 0, nil)
 }
 
 func (t *MyTUI) newPrimitive(text string) tview.Primitive {
