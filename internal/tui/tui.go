@@ -8,6 +8,8 @@ import (
 )
 
 type DataSource interface {
+	ListDataSources() map[string]string
+	SwitchDataSource(alias string) error
 	ListSchemas() []string
 	ListTables(schema string) []string
 	PreviewTable(schema string, table string) [][]string // PreviewTable returns preview data by schema and table name.

@@ -1,8 +1,7 @@
 package main
 
 import (
-	"dbui/internal/mysql"
-	"flag"
+	"dbui/internal/controller"
 	"log"
 
 	"dbui/internal/tui"
@@ -11,19 +10,25 @@ import (
 )
 
 func main() {
-	var dsn string
-	flag.StringVar(&dsn, "dsn", "", "data source name")
-	flag.Parse()
+	// var dsn string
+	// flag.StringVar(&dsn, "dsn", "", "data source name")
+	// flag.Parse()
+	//
+	// if dsn != "" {
+	// 	mysql1, _ := mysql.New(dsn)
+	// 	t := tui.NewMyTUI(mysql1)
+	// 	_ = t.Start()
+	// }
 
-	// TODO: Abstraction over different data connections.
-	// dummyDS := dummy.Dummy{}
-
-	if dsn == "" {
-		log.Panicln("provide data source name")
+	cfg := []controller.DataSourceConf{
+		{"codekn", "mysql", "codekn:codekn@(localhost:3306)/codekn_omni"},
+		{"codekn", "mysql", "codekn:codekn@(localhost:3306)/codekn"},
+	}
+	ctrl, err := controller.New(cfg)
+	if err != nil {
+		log.Println(err)
 	}
 
-	mysql1, _ := mysql.New(dsn)
-
-	t := tui.NewMyTUI(mysql1)
+	t := tui.NewMyTUI(ctrl)
 	_ = t.Start()
 }
