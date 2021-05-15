@@ -21,8 +21,8 @@ func main() {
 	// }
 
 	cfg := []controller.DataSourceConf{
-		{"codekn", "mysql", "codekn:codekn@(localhost:3306)/codekn_omni"},
-		{"codekn", "mysql", "codekn:codekn@(localhost:3306)/codekn"},
+		{"codekn", "mysql", "codekn:codekn@(localhost:4106)/codekn"},
+		{"omni", "mysql", "codekn:codekn@(localhost:4206)/codekn_omni"},
 	}
 	ctrl, err := controller.New(cfg)
 	if err != nil {

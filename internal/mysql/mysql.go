@@ -29,6 +29,11 @@ func (d *dataSource) ListSchemas() (schemas []string) {
 	schemas = []string{}
 	res, _ := d.db.Query("SHOW DATABASES;")
 
+	// TODO: Handle error.
+	if res == nil {
+		return
+	}
+
 	for res.Next() {
 		var dbName string
 		err := res.Scan(&dbName)

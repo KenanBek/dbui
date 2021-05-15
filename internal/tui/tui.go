@@ -24,6 +24,7 @@ type MyTUI struct {
 	Grid        *tview.Grid
 	TablesList  *tview.List
 	DataList    *tview.List
+	SourcesList *tview.List
 	SchemasList *tview.List
 }
 
@@ -33,32 +34,41 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	t.App = tview.NewApplication()
 	t.TablesList = tview.NewList().ShowSecondaryText(false)
 	t.DataList = tview.NewList().ShowSecondaryText(false)
+	t.SourcesList = tview.NewList().ShowSecondaryText(false)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
 
 	t.TablesList.SetBorder(true)
 	t.DataList.SetBorder(true)
+	t.SourcesList.SetBorder(true)
 	t.SchemasList.SetBorder(true)
 
 	t.TablesList.SetSelectedFunc(t.TableSelected)
 	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
+	t.SourcesList.SetSelectedFunc(t.SourceSelected)
+
+	headText := "Select table and press ENTER | Ctrl+t tables | Ctrl+d data | Ctrl+s schemas | Ctrl+r refresh"
+	footerText := "Ctrl+c EXIT"
 
 	t.Grid = tview.NewGrid().
-		SetRows(3, 0, 2).
+		SetRows(3, 0, 0, 2).
 		SetColumns(30, 0, 30).
 		SetBorders(false).
-		AddItem(t.newPrimitive("Select table and press ENTER | Ctrl+t tables | Ctrl+d data | Ctrl+s schemas | Ctrl+r refresh"), 0, 0, 1, 3, 0, 0, false).
-		AddItem(t.newPrimitive("Ctrl+c EXIT"), 2, 0, 1, 3, 0, 0, false).
-		AddItem(t.TablesList, 1, 0, 1, 1, 0, 0, true).
-		AddItem(t.DataList, 1, 1, 1, 1, 0, 0, false).
-		AddItem(t.SchemasList, 1, 2, 1, 1, 0, 0, false)
+		AddItem(t.newPrimitive(headText), 0, 0, 1, 3, 0, 0, false).
+		AddItem(t.TablesList, 1, 0, 2, 1, 0, 0, true).
+		AddItem(t.DataList, 1, 1, 2, 1, 0, 0, false).
+		AddItem(t.SourcesList, 1, 2, 1, 1, 0, 0, false).
+		AddItem(t.SchemasList, 2, 2, 1, 1, 0, 0, false).
+		AddItem(t.newPrimitive(footerText), 3, 0, 1, 3, 0, 0, false)
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
-		case tcell.KeyCtrlT:
+		case tcell.KeyCtrlA:
 			t.App.SetFocus(t.TablesList)
-		case tcell.KeyCtrlD:
-			t.App.SetFocus(t.DataList)
 		case tcell.KeyCtrlS:
+			t.App.SetFocus(t.DataList)
+		case tcell.KeyCtrlE:
+			t.App.SetFocus(t.SourcesList)
+		case tcell.KeyCtrlD:
 			t.App.SetFocus(t.SchemasList)
 		case tcell.KeyCtrlR:
 			t.LoadData()
@@ -66,6 +76,10 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 		return event
 	})
 
+	// TODO: Use-case when config was updated. Reload data sources.
+	for kAlias, vType := range t.data.ListDataSources() {
+		t.SourcesList.AddItem(kAlias, vType, 0, nil)
+	}
 	t.LoadData()
 
 	return &t
@@ -94,6 +108,14 @@ func (t *MyTUI) LoadData() {
 
 func (t *MyTUI) Start() error {
 	return t.App.SetRoot(t.Grid, true).EnableMouse(true).Run()
+}
+
+func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
+	_ = t.data.SwitchDataSource(mainText)
+
+	t.LoadData()
+
+	t.App.SetFocus(t.SchemasList)
 }
 
 func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string, shortcut rune) {
