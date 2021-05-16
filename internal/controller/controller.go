@@ -18,7 +18,7 @@ var (
 type DataSource interface {
 	ListSchemas() []string
 	ListTables(schema string) []string
-	PreviewTable(schema string, table string) [][]string // PreviewTable returns preview data by schema and table name.
+	PreviewTable(schema string, table string) [][]*string // PreviewTable returns preview data by schema and table name.
 	DescribeTable(schema string, table string) [][]string
 	Query(schema string) [][]string
 }
@@ -37,6 +37,7 @@ type Controller struct {
 func (c *Controller) getConnection(conn DataSourceConf) (DataSource, error) {
 	// Check if there is already initialized DataSource associated with the alias.
 	if dbConn, ok := c.connectionPool[conn.Alias]; ok {
+		// TODO: Check connection's status (IDLE connections might die).
 		return dbConn, nil
 	}
 
@@ -73,14 +74,14 @@ func New(cfg []DataSourceConf) (c *Controller, err error) {
 	return
 }
 
-func (c *Controller) ListDataSources() map[string]string {
-	var aliasType = map[string]string{}
+func (c *Controller) ListDataSources() (result [][]string) {
+	result = [][]string{}
 
 	for alias, conf := range c.connections {
-		aliasType[alias] = conf.Type
+		result = append(result, []string{alias, conf.Type})
 	}
 
-	return aliasType
+	return
 }
 
 func (c *Controller) SwitchDataSource(alias string) (err error) {
@@ -98,7 +99,7 @@ func (c *Controller) ListSchemas() []string {
 func (c *Controller) ListTables(schema string) []string {
 	return c.current.ListTables(schema)
 }
-func (c *Controller) PreviewTable(schema string, table string) [][]string {
+func (c *Controller) PreviewTable(schema string, table string) [][]*string {
 	return c.current.PreviewTable(schema, table)
 }
 func (c *Controller) DescribeTable(schema string, table string) [][]string {

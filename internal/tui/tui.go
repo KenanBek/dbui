@@ -8,11 +8,11 @@ import (
 )
 
 type DataSource interface {
-	ListDataSources() map[string]string
+	ListDataSources() [][]string
 	SwitchDataSource(alias string) error
 	ListSchemas() []string
 	ListTables(schema string) []string
-	PreviewTable(schema string, table string) [][]string // PreviewTable returns preview data by schema and table name.
+	PreviewTable(schema string, table string) [][]*string // PreviewTable returns preview data by schema and table name.
 	DescribeTable(schema string, table string) [][]string
 	Query(schema string) [][]string
 }
@@ -23,7 +23,7 @@ type MyTUI struct {
 	App         *tview.Application
 	Grid        *tview.Grid
 	TablesList  *tview.List
-	DataList    *tview.List
+	DataList    *tview.Table
 	SourcesList *tview.List
 	SchemasList *tview.List
 }
@@ -33,20 +33,20 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 
 	t.App = tview.NewApplication()
 	t.TablesList = tview.NewList().ShowSecondaryText(false)
-	t.DataList = tview.NewList().ShowSecondaryText(false)
-	t.SourcesList = tview.NewList().ShowSecondaryText(false)
+	t.DataList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
+	t.SourcesList = tview.NewList().ShowSecondaryText(true)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
 
-	t.TablesList.SetBorder(true)
-	t.DataList.SetBorder(true)
-	t.SourcesList.SetBorder(true)
-	t.SchemasList.SetBorder(true)
+	t.TablesList.SetTitle("Tables (Ctrl-a)").SetBorder(true)
+	t.DataList.SetTitle("Data (Ctrl-s)").SetBorder(true)
+	t.SourcesList.SetTitle("Sources (Ctrl-e)").SetBorder(true)
+	t.SchemasList.SetTitle("Schemas (Ctrl-d)").SetBorder(true)
 
 	t.TablesList.SetSelectedFunc(t.TableSelected)
 	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
 	t.SourcesList.SetSelectedFunc(t.SourceSelected)
 
-	headText := "Select table and press ENTER | Ctrl+t tables | Ctrl+d data | Ctrl+s schemas | Ctrl+r refresh"
+	headText := "Select table and press ENTER to preview | Ctrl+r refresh"
 	footerText := "Ctrl+c EXIT"
 
 	t.Grid = tview.NewGrid().
@@ -77,8 +77,8 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	})
 
 	// TODO: Use-case when config was updated. Reload data sources.
-	for kAlias, vType := range t.data.ListDataSources() {
-		t.SourcesList.AddItem(kAlias, vType, 0, nil)
+	for _, aliasType := range t.data.ListDataSources() {
+		t.SourcesList.AddItem(aliasType[0], aliasType[1], 0, nil)
 	}
 	t.LoadData()
 
@@ -87,7 +87,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 
 func (t *MyTUI) LoadData() {
 	t.TablesList.Clear()
-	t.DataList.Clear()
+	t.DataList.Clear().SetTitle("Data (Ctrl-s)")
 	t.SchemasList.Clear()
 
 	var firstDB string
@@ -104,6 +104,8 @@ func (t *MyTUI) LoadData() {
 	for _, schema := range t.data.ListSchemas() {
 		t.SchemasList.AddItem(schema, "", 0, nil)
 	}
+
+	t.App.SetFocus(t.TablesList)
 }
 
 func (t *MyTUI) Start() error {
@@ -122,14 +124,33 @@ func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string,
 	t.TablesList.Clear()
 
 	for _, table := range t.data.ListTables(mainText) {
-		t.TablesList.AddItem(table, "", 0, nil)
+		t.TablesList.AddItem(table, mainText, 0, nil)
 	}
 
 	t.App.SetFocus(t.TablesList)
 }
 
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	t.DataList.AddItem(fmt.Sprintf("Table %s with index %d selected", mainText, index), "", 0, nil)
+	data := t.data.PreviewTable(secondaryText, mainText)
+
+	t.DataList.Clear()
+	for i, row := range data {
+		for j, col := range row {
+			var cellValue string
+			var cellColor = tcell.ColorWhite
+
+			if col != nil {
+				cellValue = *col
+			}
+			if i == 0 {
+				cellColor = tcell.ColorYellow
+			}
+
+			t.DataList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+		}
+	}
+	t.DataList.SetTitle(fmt.Sprintf("Data (Ctrl-s): %s", mainText))
+	// t.App.SetFocus(t.DataList)
 }
 
 func (t *MyTUI) newPrimitive(text string) tview.Primitive {
