@@ -10,7 +10,7 @@ import (
 
 var (
 	FooterText = "Ctrl-c EXIT"
-	HeaderText = "Select table and press ENTER to preview | Ctrl+r refresh"
+	HeaderText = "Select table and press ENTER to preview | Ctrl+r refresh | Ctrl-f focus"
 )
 
 type DataSource interface {
@@ -34,6 +34,7 @@ type MyTUI struct {
 	SourcesList *tview.List
 	SchemasList *tview.List
 	FooterText  *tview.TextView
+	focusMode   bool
 }
 
 func (t *MyTUI) newPrimitive(text string) tview.Primitive {
@@ -82,6 +83,15 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 	t.DataList.ScrollToBeginning().SetSelectable(true, false)
 }
 
+func (t *MyTUI) enterFocusMode() {
+	if t.focusMode {
+		t.Grid.SetRows(3, 0, 0, 2).SetColumns(30, 0, 30)
+	} else {
+		t.Grid.SetRows(1, 0, 0, 1).SetColumns(1, 0, 1)
+	}
+	t.focusMode = !t.focusMode
+}
+
 func NewMyTUI(dataSource DataSource) *MyTUI {
 	t := MyTUI{data: dataSource}
 
@@ -101,7 +111,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	t.SourcesList.SetTitle("Sources (Ctrl-e)").SetBorder(true)
 	t.SchemasList.SetTitle("Schemas (Ctrl-d)").SetBorder(true)
 	t.DataList.SetTitle("Data (Ctrl-s)").SetBorder(true)
-	t.QueryInput.SetTitle("SQL Query").SetBorder(true)
+	t.QueryInput.SetTitle("SQL Query (Ctrl-q)").SetBorder(true)
 
 	// Input handlers
 	t.TablesList.SetSelectedFunc(t.TableSelected)
@@ -138,6 +148,8 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 			t.App.SetFocus(t.SchemasList)
 		case tcell.KeyCtrlR:
 			t.LoadData()
+		case tcell.KeyCtrlF:
+			t.enterFocusMode()
 		}
 		return event
 	})
