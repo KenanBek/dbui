@@ -1,0 +1,5 @@
+dataSources:
+  - alias: "employees"
+    type: "mysql"
+    dsn: "root:demo@(localhost:3316)/employees"
+default: "employees"

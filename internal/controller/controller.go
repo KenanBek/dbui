@@ -7,13 +7,24 @@ import (
 
 var (
 	// ErrEmptyConnection indicates that the current connection is not set.
-	// This can happen when the application was initialized with an empty DSN,
+	// This can happen when the application was initialized with an empty DSNProp,
 	// or there was an unexpected exception during the switch.
 	ErrEmptyConnection = errors.New("current connection is empty")
 
 	ErrUnsupportedDatabaseType = errors.New("database type not supported")
 	ErrAliasDoesNotExists      = errors.New("alias does not exists")
 )
+
+type DataSourceConfig interface {
+	Alias() string
+	Type() string
+	DSN() string
+}
+
+type AppConfig interface {
+	DataSources() []DataSourceConfig
+	Default() string
+}
 
 type DataSource interface {
 	ListSchemas() []string
@@ -23,54 +34,54 @@ type DataSource interface {
 	Query(schema, query string) [][]*string
 }
 
-// TODO: Replace this temp solution.
-type DataSourceConf struct {
-	Alias, Type, DSN string
-}
-
 type Controller struct {
-	connections    map[string]DataSourceConf // map of alias to DataSourceConf.
+	connections    map[string]DataSourceConfig // map of alias to DataSourceConfig.
 	connectionPool map[string]DataSource
 	current        DataSource
 }
 
-func (c *Controller) getConnection(conn DataSourceConf) (DataSource, error) {
+func (c *Controller) getConnection(conn DataSourceConfig) (DataSource, error) {
 	// Check if there is already initialized DataSource associated with the alias.
-	if dbConn, ok := c.connectionPool[conn.Alias]; ok {
+	if dbConn, ok := c.connectionPool[conn.Alias()]; ok {
 		// TODO: Check connection's status (IDLE connections might die).
 		return dbConn, nil
 	}
 
-	switch conn.Type {
+	switch conn.Type() {
 	case "mysql":
-		dbConn, err := mysql.New(conn.DSN)
+		dbConn, err := mysql.New(conn.DSN())
 		if err != nil {
 			return nil, err
 		}
-		c.connectionPool[conn.Alias] = dbConn
+		c.connectionPool[conn.Alias()] = dbConn
 		return dbConn, nil
 	default:
 		return nil, ErrUnsupportedDatabaseType
 	}
 }
 
-func New(cfg []DataSourceConf) (c *Controller, err error) {
-	// TODO: replace DataSourceConf with the actual config model.
-
-	if len(cfg) == 0 {
+func New(appConfig AppConfig) (c *Controller, err error) {
+	if len(appConfig.DataSources()) == 0 {
 		return nil, ErrEmptyConnection
 	}
 
 	c = &Controller{
-		connections:    map[string]DataSourceConf{},
+		connections:    map[string]DataSourceConfig{},
 		connectionPool: map[string]DataSource{},
 	}
 
-	for _, conf := range cfg {
-		c.connections[conf.Alias] = conf
+	for _, dsConfig := range appConfig.DataSources() {
+		c.connections[dsConfig.Alias()] = dsConfig
 	}
 
-	c.current, err = c.getConnection(cfg[0])
+	var defaultDS DataSourceConfig
+	if appConfig.Default() != "" {
+		defaultDS = c.connections[appConfig.Default()]
+	} else {
+		defaultDS = appConfig.DataSources()[0]
+	}
+
+	c.current, err = c.getConnection(defaultDS)
 	return
 }
 
@@ -78,7 +89,7 @@ func (c *Controller) ListDataSources() (result [][]string) {
 	result = [][]string{}
 
 	for alias, conf := range c.connections {
-		result = append(result, []string{alias, conf.Type})
+		result = append(result, []string{alias, conf.Type()})
 	}
 
 	return

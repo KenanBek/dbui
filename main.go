@@ -1,10 +1,10 @@
 package main
 
 import (
+	"dbui/internal/config"
 	"dbui/internal/controller"
-	"log"
-
 	"dbui/internal/tui"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -20,11 +20,12 @@ func main() {
 	// 	_ = t.Start()
 	// }
 
-	cfg := []controller.DataSourceConf{
-		{"employees", "mysql", "root:demo@(localhost:3316)/employees"},
-		//{"omni", "mysql", "codekn:codekn@(localhost:4206)/codekn_omni"},
+	appConfig, err := config.New("./dbui.yaml")
+	if err != nil {
+		log.Println(err)
 	}
-	ctrl, err := controller.New(cfg)
+
+	ctrl, err := controller.New(appConfig)
 	if err != nil {
 		log.Println(err)
 	}
