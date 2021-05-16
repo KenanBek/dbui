@@ -2,9 +2,14 @@ package tui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+)
+
+var (
+	FooterText = "Ctrl-c EXIT"
 )
 
 type DataSource interface {
@@ -26,6 +31,32 @@ type MyTUI struct {
 	DataList    *tview.Table
 	SourcesList *tview.List
 	SchemasList *tview.List
+	FooterText  *tview.TextView
+}
+
+func (t *MyTUI) newPrimitive(text string) tview.Primitive {
+	return tview.NewFrame(nil).
+		SetBorders(0, 0, 0, 0, 0, 0).
+		AddText(text, true, tview.AlignCenter, tcell.ColorWhite)
+}
+
+func (t *MyTUI) resetMessage() {
+	t.FooterText.SetText(FooterText).SetTextColor(tcell.ColorWhite)
+}
+
+func (t *MyTUI) showMessage(msg string) {
+	t.FooterText.SetText(msg).SetTextColor(tcell.ColorWhite)
+	go time.AfterFunc(2*time.Second, t.resetMessage)
+}
+
+func (t *MyTUI) showWarning(msg string) {
+	t.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
+	go time.AfterFunc(2*time.Second, t.resetMessage)
+}
+
+func (t *MyTUI) showError(err error) {
+	t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
+	go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
 func NewMyTUI(dataSource DataSource) *MyTUI {
@@ -46,8 +77,9 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
 	t.SourcesList.SetSelectedFunc(t.SourceSelected)
 
+	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(FooterText)
+
 	headText := "Select table and press ENTER to preview | Ctrl+r refresh"
-	footerText := "Ctrl+c EXIT"
 
 	t.Grid = tview.NewGrid().
 		SetRows(3, 0, 0, 2).
@@ -58,7 +90,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 		AddItem(t.DataList, 1, 1, 2, 1, 0, 0, false).
 		AddItem(t.SourcesList, 1, 2, 1, 1, 0, 0, false).
 		AddItem(t.SchemasList, 2, 2, 1, 1, 0, 0, false).
-		AddItem(t.newPrimitive(footerText), 3, 0, 1, 3, 0, 0, false)
+		AddItem(t.FooterText, 3, 0, 1, 3, 0, 0, false)
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
@@ -95,6 +127,7 @@ func (t *MyTUI) LoadData() {
 	if len(dbs) > 0 {
 		firstDB = dbs[0]
 	} else {
+		t.showWarning("no database to select")
 		return
 	}
 
@@ -113,10 +146,12 @@ func (t *MyTUI) Start() error {
 }
 
 func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	_ = t.data.SwitchDataSource(mainText)
+	err := t.data.SwitchDataSource(mainText)
+	if err != nil {
+		t.showError(err)
+	}
 
 	t.LoadData()
-
 	t.App.SetFocus(t.SchemasList)
 }
 
@@ -151,10 +186,4 @@ func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, 
 	}
 	t.DataList.SetTitle(fmt.Sprintf("Data (Ctrl-s): %s", mainText))
 	// t.App.SetFocus(t.DataList)
-}
-
-func (t *MyTUI) newPrimitive(text string) tview.Primitive {
-	return tview.NewFrame(nil).
-		SetBorders(0, 0, 0, 0, 0, 0).
-		AddText(text, true, tview.AlignCenter, tcell.ColorWhite)
 }
