@@ -12,6 +12,42 @@ type dataSource struct {
 	db *sql.DB
 }
 
+func (d *dataSource) query(schema string, query string) (data [][]*string) {
+	data = [][]*string{}
+
+	rows, err := d.db.Query(query)
+	if err != nil {
+		return
+	}
+	cols, err := rows.Columns()
+	if err != nil {
+		return
+	}
+
+	var colsNames []*string
+	for _, col := range cols {
+		colName := col
+		colsNames = append(colsNames, &colName)
+	}
+	data = append(data, colsNames)
+
+	for rows.Next() {
+		columns := make([]*string, len(cols))
+		columnPointers := make([]interface{}, len(cols))
+		for i, _ := range columns {
+			columnPointers[i] = &columns[i]
+		}
+
+		err = rows.Scan(columnPointers...)
+		if err != nil {
+			return
+		}
+
+		data = append(data, columns)
+	}
+	return
+}
+
 func New(dsn string) (*dataSource, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -72,39 +108,7 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 }
 
 func (d *dataSource) PreviewTable(schema string, table string) (data [][]*string) {
-	data = [][]*string{}
-
-	rows, err := d.db.Query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
-	if err != nil {
-		return
-	}
-	cols, err := rows.Columns()
-	if err != nil {
-		return
-	}
-
-	var colsNames []*string
-	for _, col := range cols {
-		colName := col
-		colsNames = append(colsNames, &colName)
-	}
-	data = append(data, colsNames)
-
-	for rows.Next() {
-		columns := make([]*string, len(cols))
-		columnPointers := make([]interface{}, len(cols))
-		for i, _ := range columns {
-			columnPointers[i] = &columns[i]
-		}
-
-		err = rows.Scan(columnPointers...)
-		if err != nil {
-			return
-		}
-
-		data = append(data, columns)
-	}
-
+	data = d.query(schema, fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
 	return
 }
 
@@ -113,9 +117,6 @@ func (d *dataSource) DescribeTable(schema string, table string) [][]string {
 	}
 }
 
-func (d *dataSource) Query(schema string) [][]string {
-	return [][]string{
-		{"qabc", "qadc"},
-		{"qbbc", "qbdc"},
-	}
+func (d *dataSource) Query(schema, query string) [][]*string {
+	return d.query(schema, query)
 }

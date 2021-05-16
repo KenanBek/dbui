@@ -10,6 +10,7 @@ import (
 
 var (
 	FooterText = "Ctrl-c EXIT"
+	HeaderText = "Select table and press ENTER to preview | Ctrl+r refresh"
 )
 
 type DataSource interface {
@@ -17,9 +18,9 @@ type DataSource interface {
 	SwitchDataSource(alias string) error
 	ListSchemas() []string
 	ListTables(schema string) []string
-	PreviewTable(schema string, table string) [][]*string // PreviewTable returns preview data by schema and table name.
-	DescribeTable(schema string, table string) [][]string
-	Query(schema string) [][]string
+	PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
+	DescribeTable(schema, table string) [][]string
+	Query(schema, query string) [][]*string
 }
 
 type MyTUI struct {
@@ -29,6 +30,7 @@ type MyTUI struct {
 	Grid        *tview.Grid
 	TablesList  *tview.List
 	DataList    *tview.Table
+	QueryInput  *tview.InputField
 	SourcesList *tview.List
 	SchemasList *tview.List
 	FooterText  *tview.TextView
@@ -59,41 +61,73 @@ func (t *MyTUI) showError(err error) {
 	go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
+func (t *MyTUI) showData(label string, data [][]*string) {
+	t.DataList.Clear()
+	for i, row := range data {
+		for j, col := range row {
+			var cellValue string
+			var cellColor = tcell.ColorWhite
+
+			if col != nil {
+				cellValue = *col
+			}
+			if i == 0 {
+				cellColor = tcell.ColorYellow
+			}
+
+			t.DataList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+		}
+	}
+	t.DataList.SetTitle(fmt.Sprintf("Data (Ctrl-s): %s", label))
+	t.DataList.ScrollToBeginning().SetSelectable(true, false)
+}
+
 func NewMyTUI(dataSource DataSource) *MyTUI {
 	t := MyTUI{data: dataSource}
 
 	t.App = tview.NewApplication()
+
+	// View elements
 	t.TablesList = tview.NewList().ShowSecondaryText(false)
-	t.DataList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
 	t.SourcesList = tview.NewList().ShowSecondaryText(true)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
 
+	t.DataList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
+	t.QueryInput = tview.NewInputField()
+	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(FooterText)
+
+	// Configure appearance
 	t.TablesList.SetTitle("Tables (Ctrl-a)").SetBorder(true)
-	t.DataList.SetTitle("Data (Ctrl-s)").SetBorder(true)
 	t.SourcesList.SetTitle("Sources (Ctrl-e)").SetBorder(true)
 	t.SchemasList.SetTitle("Schemas (Ctrl-d)").SetBorder(true)
+	t.DataList.SetTitle("Data (Ctrl-s)").SetBorder(true)
+	t.QueryInput.SetTitle("SQL Query").SetBorder(true)
 
+	// Input handlers
 	t.TablesList.SetSelectedFunc(t.TableSelected)
 	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
 	t.SourcesList.SetSelectedFunc(t.SourceSelected)
+	t.QueryInput.SetDoneFunc(t.ExecuteQuery)
 
-	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(FooterText)
-
-	headText := "Select table and press ENTER to preview | Ctrl+r refresh"
+	previewAndQuery := tview.NewGrid().SetRows(0, 3).
+		AddItem(t.DataList, 0, 0, 1, 1, 0, 0, false).
+		AddItem(t.QueryInput, 1, 0, 1, 1, 0, 0, false)
 
 	t.Grid = tview.NewGrid().
 		SetRows(3, 0, 0, 2).
 		SetColumns(30, 0, 30).
 		SetBorders(false).
-		AddItem(t.newPrimitive(headText), 0, 0, 1, 3, 0, 0, false).
+		AddItem(t.newPrimitive(HeaderText), 0, 0, 1, 3, 0, 0, false).
 		AddItem(t.TablesList, 1, 0, 2, 1, 0, 0, true).
-		AddItem(t.DataList, 1, 1, 2, 1, 0, 0, false).
+		AddItem(previewAndQuery, 1, 1, 2, 1, 0, 0, false).
 		AddItem(t.SourcesList, 1, 2, 1, 1, 0, 0, false).
 		AddItem(t.SchemasList, 2, 2, 1, 1, 0, 0, false).
 		AddItem(t.FooterText, 3, 0, 1, 3, 0, 0, false)
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
+		case tcell.KeyCtrlQ:
+			t.App.SetFocus(t.QueryInput)
 		case tcell.KeyCtrlA:
 			t.App.SetFocus(t.TablesList)
 		case tcell.KeyCtrlS:
@@ -168,22 +202,13 @@ func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string,
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	data := t.data.PreviewTable(secondaryText, mainText)
 
-	t.DataList.Clear()
-	for i, row := range data {
-		for j, col := range row {
-			var cellValue string
-			var cellColor = tcell.ColorWhite
+	t.showData(mainText, data)
+}
 
-			if col != nil {
-				cellValue = *col
-			}
-			if i == 0 {
-				cellColor = tcell.ColorYellow
-			}
+func (t *MyTUI) ExecuteQuery(key tcell.Key) {
+	schema, _ := t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
+	query := t.QueryInput.GetText()
 
-			t.DataList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
-		}
-	}
-	t.DataList.SetTitle(fmt.Sprintf("Data (Ctrl-s): %s", mainText))
-	// t.App.SetFocus(t.DataList)
+	data := t.data.Query(schema, query)
+	t.showData("query", data)
 }

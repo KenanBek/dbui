@@ -18,9 +18,9 @@ var (
 type DataSource interface {
 	ListSchemas() []string
 	ListTables(schema string) []string
-	PreviewTable(schema string, table string) [][]*string // PreviewTable returns preview data by schema and table name.
-	DescribeTable(schema string, table string) [][]string
-	Query(schema string) [][]string
+	PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
+	DescribeTable(schema, table string) [][]string
+	Query(schema, query string) [][]*string
 }
 
 // TODO: Replace this temp solution.
@@ -105,6 +105,6 @@ func (c *Controller) PreviewTable(schema string, table string) [][]*string {
 func (c *Controller) DescribeTable(schema string, table string) [][]string {
 	return c.current.DescribeTable(schema, table)
 }
-func (c *Controller) Query(schema string) [][]string {
-	return c.current.Query(schema)
+func (c *Controller) Query(schema, query string) [][]*string {
+	return c.current.Query(schema, query)
 }
