@@ -27,10 +27,10 @@ func New(dsn string) (*dataSource, error) {
 
 func (d *dataSource) ListSchemas() (schemas []string) {
 	schemas = []string{}
-	res, _ := d.db.Query("SHOW DATABASES;")
+	res, err := d.db.Query("SHOW DATABASES;")
 
 	// TODO: Handle error.
-	if res == nil {
+	if err != nil {
 		return
 	}
 

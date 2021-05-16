@@ -11,6 +11,9 @@
 *.so
 *.dylib
 
+# App demo
+demodata
+
 # Test binary, built with `go test -c`
 *.test
 
