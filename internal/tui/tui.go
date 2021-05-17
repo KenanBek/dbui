@@ -33,6 +33,7 @@ type MyTUI struct {
 	QueryInput  *tview.InputField
 	SourcesList *tview.List
 	SchemasList *tview.List
+	HeaderText  *tview.TextView
 	FooterText  *tview.TextView
 	focusMode   bool
 }
@@ -105,6 +106,8 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 
 	t.DataList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
 	t.QueryInput = tview.NewInputField()
+
+	t.HeaderText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(HeaderText)
 	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(FooterText)
 
 	// Configure appearance
@@ -128,7 +131,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 		SetRows(3, 0, 0, 2).
 		SetColumns(30, 0, 30).
 		SetBorders(false).
-		AddItem(t.newPrimitive(HeaderText), 0, 0, 1, 3, 0, 0, false).
+		AddItem(t.HeaderText, 0, 0, 1, 3, 0, 0, false).
 		AddItem(t.TablesList, 1, 0, 2, 1, 0, 0, true).
 		AddItem(previewAndQuery, 1, 1, 2, 1, 0, 0, false).
 		AddItem(t.SourcesList, 1, 2, 1, 1, 0, 0, false).
