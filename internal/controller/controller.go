@@ -21,7 +21,7 @@ type DataSource interface {
 	ListTables(schema string) []string
 	PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
 	DescribeTable(schema, table string) [][]string
-	Query(schema, query string) [][]*string
+	Query(schema, query string) ([][]*string, error)
 }
 
 type Controller struct {
@@ -106,6 +106,6 @@ func (c *Controller) PreviewTable(schema string, table string) [][]*string {
 func (c *Controller) DescribeTable(schema string, table string) [][]string {
 	return c.current.DescribeTable(schema, table)
 }
-func (c *Controller) Query(schema, query string) [][]*string {
+func (c *Controller) Query(schema, query string) ([][]*string, error) {
 	return c.current.Query(schema, query)
 }

@@ -20,7 +20,7 @@ type DataSource interface {
 	ListTables(schema string) []string
 	PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
 	DescribeTable(schema, table string) [][]string
-	Query(schema, query string) [][]*string
+	Query(schema, query string) ([][]*string, error)
 }
 
 type MyTUI struct {
@@ -45,10 +45,11 @@ func (t *MyTUI) newPrimitive(text string) tview.Primitive {
 
 func (t *MyTUI) resetMessage() {
 	t.FooterText.SetText(FooterText).SetTextColor(tcell.ColorWhite)
+	t.App.Draw()
 }
 
 func (t *MyTUI) showMessage(msg string) {
-	t.FooterText.SetText(msg).SetTextColor(tcell.ColorWhite)
+	t.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
 	go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
@@ -59,7 +60,7 @@ func (t *MyTUI) showWarning(msg string) {
 
 func (t *MyTUI) showError(err error) {
 	t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
-	go time.AfterFunc(2*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showData(label string, data [][]*string) {
@@ -221,6 +222,12 @@ func (t *MyTUI) ExecuteQuery(key tcell.Key) {
 	schema, _ := t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
 	query := t.QueryInput.GetText()
 
-	data := t.data.Query(schema, query)
-	t.showData("query", data)
+	t.showMessage("Executing...")
+	data, err := t.data.Query(schema, query)
+	if err != nil {
+		t.showError(err)
+	} else {
+		t.showData("query", data)
+		// t.showMessage("Success!")
+	}
 }

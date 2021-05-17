@@ -12,7 +12,7 @@ type dataSource struct {
 	db *sql.DB
 }
 
-func (d *dataSource) query(schema string, query string) (data [][]*string) {
+func (d *dataSource) query(schema string, query string) (data [][]*string, err error) {
 	data = [][]*string{}
 
 	rows, err := d.db.Query(query)
@@ -108,7 +108,7 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 }
 
 func (d *dataSource) PreviewTable(schema string, table string) (data [][]*string) {
-	data = d.query(schema, fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
+	data, _ = d.query(schema, fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
 	return
 }
 
@@ -117,6 +117,6 @@ func (d *dataSource) DescribeTable(schema string, table string) [][]string {
 	}
 }
 
-func (d *dataSource) Query(schema, query string) [][]*string {
+func (d *dataSource) Query(schema, query string) ([][]*string, error) {
 	return d.query(schema, query)
 }
