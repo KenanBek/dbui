@@ -49,6 +49,18 @@ $ dbui -dsn <connection string> -type <data source type>
 $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 ```
 
+### Hot keys
+
+    <image> to show hot keys
+
+- `Ctrl-A` - focus on tables
+- `Ctrl-S` - focus on preview/data
+- `Ctrl-D` - focus on schemes
+- `Ctrl-E` - focus on data sources
+- `Ctrl-Q` - query
+- `Ctrl-F` - toggle focus-mode
+- `Ctrl-C` - exit
+
 ## Contribution
 
 The code and its sub-packages include various form of documentation: code comments or README files. Make sure to get
