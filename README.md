@@ -7,15 +7,13 @@
 By default `dbui` uses configuration file (`dbui.conf`).
 
 ```yaml
-databases:
-  - database:
-      name: tiger
-      type: mysql
-      dsn: ...
-  - database:
-      name: tiger
-      type: mysql
-      dsn: ...
+dataSources:
+  - name: tiger
+    type: mysql
+    dsn: "..."
+  - name: lion
+    type: mysql
+    dsn: "..."
 defaut: tiger
 ```
 
