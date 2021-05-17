@@ -2,9 +2,26 @@
 
 `dbui` is the terminal user interface and CLI for database connections.
 
+It provides features like,
+
+First, it checks in the current directory, then in the user's home directory.
+
+- Connect to multiple data sources and instances.
+- List all schemas in a selected data source.
+- List all tables in a selected scheme.
+- Preview a selected table.
+- Query a selected table or scheme.
+- User-friendly UI features like query execution status, warning and error messages, full-screen and focus modes.
+
+Currently supported databases:
+
+- MySQL
+- PostgreSQL (soon)
+- SQLite (soon)
+
 ## Usage
 
-By default `dbui` uses configuration file (`dbui.conf`).
+By default `dbui` uses configuration file (`dbui.yaml`).
 
 ```yaml
 dataSources:
@@ -17,16 +34,19 @@ dataSources:
 defaut: tiger
 ```
 
+First, it checks in the current directory, then in the user's home directory.
+
 All provided database connections will be available in the application, and you can switch among them without restarting
 the application.
 
-Alternatively, it is possible to start `dbui` for a single database connection using a DSN (data source name) parameter.
+Alternatively, it is possible to start `dbui` for a single database connection using a DSN (data source name) and type
+arguments.
 
 ```shell
-$ dbui -dsn <connection string>
+$ dbui -dsn <connection string> -type <data source type>
 
 # example for a mysql connection
-$ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni"
+$ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 ```
 
 ## Contribution
