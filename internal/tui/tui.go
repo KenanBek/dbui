@@ -84,7 +84,7 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 	t.DataList.ScrollToBeginning().SetSelectable(true, false)
 }
 
-func (t *MyTUI) enterFocusMode() {
+func (t *MyTUI) toggleFocusMode() {
 	if t.focusMode {
 		t.Grid.SetRows(3, 0, 0, 2).SetColumns(30, 0, 30)
 	} else {
@@ -150,7 +150,11 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 		case tcell.KeyCtrlR:
 			t.LoadData()
 		case tcell.KeyCtrlF:
-			t.enterFocusMode()
+			t.toggleFocusMode()
+		case tcell.KeyEscape:
+			if t.focusMode {
+				t.toggleFocusMode()
+			}
 		}
 		return event
 	})
@@ -162,6 +166,10 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	t.LoadData()
 
 	return &t
+}
+
+func (t *MyTUI) Start() error {
+	return t.App.SetRoot(t.Grid, true).EnableMouse(true).Run()
 }
 
 func (t *MyTUI) LoadData() {
@@ -186,10 +194,6 @@ func (t *MyTUI) LoadData() {
 	}
 
 	t.App.SetFocus(t.TablesList)
-}
-
-func (t *MyTUI) Start() error {
-	return t.App.SetRoot(t.Grid, true).EnableMouse(true).Run()
 }
 
 func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
