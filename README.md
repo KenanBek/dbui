@@ -51,7 +51,7 @@ $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 
 ### Hot keys
 
-    <image> to show hot keys
+![dbui keyboard hot keys](docs/keyboard-layout.png "DBUI Keyboard Hot Keys")
 
 - `Ctrl-A` - focus on tables
 - `Ctrl-S` - focus on preview/data

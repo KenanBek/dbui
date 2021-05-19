@@ -1,0 +1,41 @@
+[
+  [
+    {
+      "f": 2
+    },
+    "Q\nQuery",
+    {
+      "a": 7
+    },
+    "",
+    {
+      "a": 4
+    },
+    "E\nSources",
+    "R\nRefresh",
+    {
+      "x": 0.25,
+      "f": 3,
+      "w": 14,
+      "h": 5,
+      "d": true
+    },
+    "<h5><b>Default Keyboard Layout</b></h5><ul><li><b>`Ctrl-A`</b> - focus on tables</li><li><b>`Ctrl-S`</b> - focus on preview/data</li><li><b>`Ctrl-D`</b> - focus on schemes</li><li><b>`Ctrl-E`</b> - focus on data sources</li><li><b>`Ctrl-Q`</b> - query</li><li><b>`Ctrl-F`</b> - toggle focus-mode</li><li><b>`Ctrl-C`</b> - exit</li></ul>"
+  ],
+  [
+    {
+      "f": 2
+    },
+    "A\nTables",
+    "S\nData",
+    "D\nSchemas",
+    "F\nFocus"
+  ],
+  [
+    {
+      "y": 1,
+      "n": true
+    },
+    "Ctrl"
+  ]
+]

@@ -8,4 +8,4 @@ dataSources:
   - alias: omni
     type: mysql
     dsn: "codekn:codekn@(localhost:4206)/codekn_omni"
-default: employees
+default: codekn

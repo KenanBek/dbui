@@ -235,6 +235,6 @@ func (t *MyTUI) ExecuteQuery(key tcell.Key) {
 		t.showError(err)
 	} else {
 		t.showData("query", data)
-		// t.showMessage("Success!")
+		t.showMessage(fmt.Sprintf("Query \"%s\" executed succesfully!", query))
 	}
 }
