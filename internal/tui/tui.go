@@ -177,16 +177,21 @@ func (t *MyTUI) LoadData() {
 	t.DataList.Clear().SetTitle("Data (Ctrl-s)")
 	t.SchemasList.Clear()
 
-	var firstDB string
-	dbs := t.dc.Current().ListSchemas()
-	if len(dbs) > 0 {
-		firstDB = dbs[0]
+	schemas, err := t.dc.Current().ListSchemas()
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	var firstSchema string
+	if len(schemas) > 0 {
+		firstSchema = schemas[0]
 	} else {
 		t.showWarning("no database to select")
 		return
 	}
 
-	tables, err := t.dc.Current().ListTables(firstDB)
+	tables, err := t.dc.Current().ListTables(firstSchema)
 	if err != nil {
 		t.showError(err)
 		return
@@ -195,7 +200,7 @@ func (t *MyTUI) LoadData() {
 	for _, table := range tables {
 		t.TablesList.AddItem(table, "", 0, nil)
 	}
-	for _, schema := range t.dc.Current().ListSchemas() {
+	for _, schema := range schemas {
 		t.SchemasList.AddItem(schema, "", 0, nil)
 	}
 

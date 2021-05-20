@@ -5,7 +5,7 @@ type (
 	// data sources like MySQL, PostgreSQL, etc., must implement this interface.
 	DataSource interface {
 		Ping() error
-		ListSchemas() []string
+		ListSchemas() ([]string, error)
 		ListTables(schema string) ([]string, error)
 		PreviewTable(schema, table string) ([][]*string, error) // PreviewTable returns preview data by schema and table name.
 		DescribeTable(schema, table string) [][]string

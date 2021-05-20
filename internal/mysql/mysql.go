@@ -65,18 +65,17 @@ func (d *dataSource) Ping() error {
 	return d.db.Ping()
 }
 
-func (d *dataSource) ListSchemas() (schemas []string) {
+func (d *dataSource) ListSchemas() (schemas []string, err error) {
 	schemas = []string{}
 	res, err := d.db.Query("SHOW DATABASES")
 
-	// TODO: Handle error.
 	if err != nil {
 		return
 	}
 
 	for res.Next() {
 		var dbName string
-		err := res.Scan(&dbName)
+		err = res.Scan(&dbName)
 		if err == nil {
 			schemas = append(schemas, dbName)
 		}
