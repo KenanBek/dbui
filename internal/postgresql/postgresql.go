@@ -87,16 +87,11 @@ func (d *dataSource) ListSchemas() (schemas []string) {
 	return
 }
 
-func (d *dataSource) ListTables(schema string) (tables []string) {
+func (d *dataSource) ListTables(schema string) (tables []string, err error) {
 	tables = []string{}
 
-	tx, _ := d.db.Begin()
-	_, err := tx.Query(fmt.Sprintf("USE %s", schema)) // for some reasons ? did not work (TODO: check later)
-	if err != nil {
-		return
-	}
-
-	res, err := tx.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema=%s ORDER BY table_name;", schema))
+	queryStr := fmt.Sprintf("SELECT table_name FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_type='BASE TABLE' AND t.table_catalog='%s' ORDER BY table_name;", schema)
+	res, err := d.db.Query(queryStr)
 
 	if err != nil {
 		return
@@ -104,7 +99,7 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 
 	for res.Next() {
 		var tableName string
-		err := res.Scan(&tableName)
+		err = res.Scan(&tableName)
 		if err == nil {
 			tables = append(tables, tableName)
 		}
@@ -113,9 +108,8 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 	return
 }
 
-func (d *dataSource) PreviewTable(schema string, table string) (data [][]*string) {
-	data, _ = d.query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
-	return
+func (d *dataSource) PreviewTable(schema string, table string) ([][]*string, error) {
+	return d.query(fmt.Sprintf("SELECT * FROM %s LIMIT 100", table))
 }
 
 func (d *dataSource) DescribeTable(schema string, table string) [][]string {

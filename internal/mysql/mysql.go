@@ -85,11 +85,11 @@ func (d *dataSource) ListSchemas() (schemas []string) {
 	return
 }
 
-func (d *dataSource) ListTables(schema string) (tables []string) {
+func (d *dataSource) ListTables(schema string) (tables []string, err error) {
 	tables = []string{}
 
 	tx, _ := d.db.Begin()
-	_, err := tx.Query(fmt.Sprintf("USE %s", schema)) // for some reasons ? did not work (TODO: check later)
+	_, err = tx.Query(fmt.Sprintf("USE %s", schema)) // for some reasons ? did not work (TODO: check later)
 	if err != nil {
 		return
 	}
@@ -102,7 +102,7 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 
 	for res.Next() {
 		var tableName string
-		err := res.Scan(&tableName)
+		err = res.Scan(&tableName)
 		if err == nil {
 			tables = append(tables, tableName)
 		}
@@ -111,9 +111,8 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 	return
 }
 
-func (d *dataSource) PreviewTable(schema string, table string) (data [][]*string) {
-	data, _ = d.query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
-	return
+func (d *dataSource) PreviewTable(schema string, table string) ([][]*string, error) {
+	return d.query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
 }
 
 func (d *dataSource) DescribeTable(schema string, table string) [][]string {

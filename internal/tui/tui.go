@@ -186,7 +186,13 @@ func (t *MyTUI) LoadData() {
 		return
 	}
 
-	for _, table := range t.dc.Current().ListTables(firstDB) {
+	tables, err := t.dc.Current().ListTables(firstDB)
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	for _, table := range tables {
 		t.TablesList.AddItem(table, "", 0, nil)
 	}
 	for _, schema := range t.dc.Current().ListSchemas() {
@@ -216,7 +222,13 @@ func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string,
 func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	t.TablesList.Clear()
 
-	for _, table := range t.dc.Current().ListTables(mainText) {
+	tables, err := t.dc.Current().ListTables(mainText)
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	for _, table := range tables {
 		t.TablesList.AddItem(table, mainText, 0, nil)
 	}
 
@@ -224,7 +236,11 @@ func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string,
 }
 
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	data := t.dc.Current().PreviewTable(secondaryText, mainText)
+	data, err := t.dc.Current().PreviewTable(secondaryText, mainText)
+	if err != nil {
+		t.showError(err)
+		return
+	}
 
 	t.showData(mainText, data)
 }

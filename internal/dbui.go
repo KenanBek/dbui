@@ -6,8 +6,8 @@ type (
 	DataSource interface {
 		Ping() error
 		ListSchemas() []string
-		ListTables(schema string) []string
-		PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
+		ListTables(schema string) ([]string, error)
+		PreviewTable(schema, table string) ([][]*string, error) // PreviewTable returns preview data by schema and table name.
 		DescribeTable(schema, table string) [][]string
 		Query(schema, query string) ([][]*string, error)
 	}
