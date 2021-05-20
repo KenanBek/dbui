@@ -69,7 +69,7 @@ func (d *dataSource) Ping() error {
 
 func (d *dataSource) ListSchemas() (schemas []string) {
 	schemas = []string{}
-	res, err := d.db.Query("SHOW DATABASES")
+	res, err := d.db.Query("SELECT datname FROM pg_database WHERE datistemplate = false")
 
 	// TODO: Handle error.
 	if err != nil {
@@ -96,7 +96,7 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 		return
 	}
 
-	res, err := tx.Query("SHOW TABLES")
+	res, err := tx.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema=%s ORDER BY table_name;", schema))
 
 	if err != nil {
 		return

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"dbui/internal"
+	"errors"
 	"fmt"
 	"time"
 
@@ -57,6 +58,11 @@ func (t *MyTUI) showError(err error) {
 
 func (t *MyTUI) showData(label string, data [][]*string) {
 	t.DataList.Clear()
+
+	if len(data) == 0 {
+		return
+	}
+
 	for i, row := range data {
 		for j, col := range row {
 			var cellValue string
@@ -223,12 +229,27 @@ func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, 
 	t.showData(mainText, data)
 }
 
-func (t *MyTUI) ExecuteQuery(key tcell.Key) {
-	schema, _ := t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
-	query := t.QueryInput.GetText()
+func (t *MyTUI) getSelectedScheme() (scheme string, err error) {
+	defer func() {
+		if recover() != nil {
+			err = errors.New("no database to select")
+		}
+	}()
+	scheme, _ = t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
 
+	return
+}
+
+func (t *MyTUI) ExecuteQuery(key tcell.Key) {
+	scheme, err := t.getSelectedScheme()
+
+	if err != nil {
+		t.showError(err)
+	}
+
+	query := t.QueryInput.GetText()
 	t.showMessage("Executing...")
-	data, err := t.dc.Current().Query(schema, query)
+	data, err := t.dc.Current().Query(scheme, query)
 	if err != nil {
 		t.showError(err)
 	} else {
