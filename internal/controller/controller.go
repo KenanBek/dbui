@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"dbui/internal"
 	"dbui/internal/config"
 	"dbui/internal/mysql"
+	"dbui/internal/postgresql"
 	"errors"
 )
 
@@ -16,21 +18,13 @@ var (
 	ErrAliasDoesNotExists      = errors.New("alias does not exists")
 )
 
-type DataSource interface {
-	ListSchemas() []string
-	ListTables(schema string) []string
-	PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
-	DescribeTable(schema, table string) [][]string
-	Query(schema, query string) ([][]*string, error)
-}
-
 type Controller struct {
 	dsConfigs      map[string]config.DataSourceConfig // map of alias to DataSourceConfig.
-	connectionPool map[string]DataSource
-	current        DataSource
+	connectionPool map[string]internal.DataSource
+	current        internal.DataSource
 }
 
-func (c *Controller) getConnection(conn config.DataSourceConfig) (DataSource, error) {
+func (c *Controller) getConnectionOrConnect(conn config.DataSourceConfig) (internal.DataSource, error) {
 	// Check if there is already initialized DataSource associated with the alias.
 	if dbConn, ok := c.connectionPool[conn.Alias]; ok {
 		// TODO: Check connection's status (IDLE dsConfigs might die).
@@ -40,6 +34,13 @@ func (c *Controller) getConnection(conn config.DataSourceConfig) (DataSource, er
 	switch conn.Type {
 	case "mysql":
 		dbConn, err := mysql.New(conn.DSN)
+		if err != nil {
+			return nil, err
+		}
+		c.connectionPool[conn.Alias] = dbConn
+		return dbConn, nil
+	case "postgresql":
+		dbConn, err := postgresql.New(conn.DSN)
 		if err != nil {
 			return nil, err
 		}
@@ -57,7 +58,7 @@ func New(appConfig *config.AppConfig) (c *Controller, err error) {
 
 	c = &Controller{
 		dsConfigs:      map[string]config.DataSourceConfig{},
-		connectionPool: map[string]DataSource{},
+		connectionPool: map[string]internal.DataSource{},
 	}
 
 	for _, dsConfig := range appConfig.DataSources {
@@ -71,11 +72,11 @@ func New(appConfig *config.AppConfig) (c *Controller, err error) {
 		defaultDS = appConfig.DataSources[0]
 	}
 
-	c.current, err = c.getConnection(defaultDS)
+	c.current, err = c.getConnectionOrConnect(defaultDS)
 	return
 }
 
-func (c *Controller) ListDataSources() (result [][]string) {
+func (c *Controller) List() (result [][]string) {
 	result = [][]string{}
 
 	for alias, conf := range c.dsConfigs {
@@ -85,27 +86,15 @@ func (c *Controller) ListDataSources() (result [][]string) {
 	return
 }
 
-func (c *Controller) SwitchDataSource(alias string) (err error) {
+func (c *Controller) Switch(alias string) (err error) {
 	if _, ok := c.dsConfigs[alias]; !ok {
 		return ErrAliasDoesNotExists
 	}
 
-	c.current, err = c.getConnection(c.dsConfigs[alias])
+	c.current, err = c.getConnectionOrConnect(c.dsConfigs[alias])
 	return
 }
 
-func (c *Controller) ListSchemas() []string {
-	return c.current.ListSchemas()
-}
-func (c *Controller) ListTables(schema string) []string {
-	return c.current.ListTables(schema)
-}
-func (c *Controller) PreviewTable(schema string, table string) [][]*string {
-	return c.current.PreviewTable(schema, table)
-}
-func (c *Controller) DescribeTable(schema string, table string) [][]string {
-	return c.current.DescribeTable(schema, table)
-}
-func (c *Controller) Query(schema, query string) ([][]*string, error) {
-	return c.current.Query(schema, query)
+func (c *Controller) Current() internal.DataSource {
+	return c.current
 }

@@ -6,13 +6,12 @@ import (
 	"time"
 )
 
-// MySQLDataSource implements DataSource interface for MySQL storage.
-// One instance for each database connection.
+// dataSource implements internal.DataSource interface for MySQL storage.
 type dataSource struct {
 	db *sql.DB
 }
 
-func (d *dataSource) query(schema string, query string) (data [][]*string, err error) {
+func (d *dataSource) query(query string) (data [][]*string, err error) {
 	data = [][]*string{}
 
 	rows, err := d.db.Query(query)
@@ -51,6 +50,7 @@ func (d *dataSource) query(schema string, query string) (data [][]*string, err e
 func New(dsn string) (*dataSource, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
+		// TODO: Return err.
 		panic(err)
 	}
 	// See "Important settings" section.
@@ -61,9 +61,13 @@ func New(dsn string) (*dataSource, error) {
 	return &dataSource{db: db}, nil
 }
 
+func (d *dataSource) Ping() error {
+	return d.db.Ping()
+}
+
 func (d *dataSource) ListSchemas() (schemas []string) {
 	schemas = []string{}
-	res, err := d.db.Query("SHOW DATABASES;")
+	res, err := d.db.Query("SHOW DATABASES")
 
 	// TODO: Handle error.
 	if err != nil {
@@ -108,15 +112,14 @@ func (d *dataSource) ListTables(schema string) (tables []string) {
 }
 
 func (d *dataSource) PreviewTable(schema string, table string) (data [][]*string) {
-	data, _ = d.query(schema, fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
+	data, _ = d.query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 100", schema, table))
 	return
 }
 
 func (d *dataSource) DescribeTable(schema string, table string) [][]string {
-	return [][]string{
-	}
+	return [][]string{}
 }
 
 func (d *dataSource) Query(schema, query string) ([][]*string, error) {
-	return d.query(schema, query)
+	return d.query(query)
 }

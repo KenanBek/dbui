@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"dbui/internal"
 	"fmt"
 	"time"
 
@@ -13,18 +14,8 @@ var (
 	HeaderText = "Select table and press ENTER to preview | Ctrl+r refresh | Ctrl-f focus"
 )
 
-type DataSource interface {
-	ListDataSources() [][]string
-	SwitchDataSource(alias string) error
-	ListSchemas() []string
-	ListTables(schema string) []string
-	PreviewTable(schema, table string) [][]*string // PreviewTable returns preview data by schema and table name.
-	DescribeTable(schema, table string) [][]string
-	Query(schema, query string) ([][]*string, error)
-}
-
 type MyTUI struct {
-	data DataSource
+	dc internal.DataController
 
 	App         *tview.Application
 	Grid        *tview.Grid
@@ -94,8 +85,8 @@ func (t *MyTUI) toggleFocusMode() {
 	t.focusMode = !t.focusMode
 }
 
-func NewMyTUI(dataSource DataSource) *MyTUI {
-	t := MyTUI{data: dataSource}
+func NewMyTUI(dataController internal.DataController) *MyTUI {
+	t := MyTUI{dc: dataController}
 
 	t.App = tview.NewApplication()
 
@@ -163,7 +154,7 @@ func NewMyTUI(dataSource DataSource) *MyTUI {
 	})
 
 	// TODO: Use-case when config was updated. Reload data sources.
-	for _, aliasType := range t.data.ListDataSources() {
+	for _, aliasType := range t.dc.List() {
 		t.SourcesList.AddItem(aliasType[0], aliasType[1], 0, nil)
 	}
 	t.LoadData()
@@ -181,7 +172,7 @@ func (t *MyTUI) LoadData() {
 	t.SchemasList.Clear()
 
 	var firstDB string
-	dbs := t.data.ListSchemas()
+	dbs := t.dc.Current().ListSchemas()
 	if len(dbs) > 0 {
 		firstDB = dbs[0]
 	} else {
@@ -189,10 +180,10 @@ func (t *MyTUI) LoadData() {
 		return
 	}
 
-	for _, table := range t.data.ListTables(firstDB) {
+	for _, table := range t.dc.Current().ListTables(firstDB) {
 		t.TablesList.AddItem(table, "", 0, nil)
 	}
-	for _, schema := range t.data.ListSchemas() {
+	for _, schema := range t.dc.Current().ListSchemas() {
 		t.SchemasList.AddItem(schema, "", 0, nil)
 	}
 
@@ -200,9 +191,16 @@ func (t *MyTUI) LoadData() {
 }
 
 func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	err := t.data.SwitchDataSource(mainText)
+	err := t.dc.Switch(mainText)
 	if err != nil {
 		t.showError(err)
+		return
+	}
+
+	err = t.dc.Current().Ping()
+	if err != nil {
+		t.showError(err)
+		return
 	}
 
 	t.LoadData()
@@ -212,7 +210,7 @@ func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string,
 func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	t.TablesList.Clear()
 
-	for _, table := range t.data.ListTables(mainText) {
+	for _, table := range t.dc.Current().ListTables(mainText) {
 		t.TablesList.AddItem(table, mainText, 0, nil)
 	}
 
@@ -220,7 +218,7 @@ func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string,
 }
 
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	data := t.data.PreviewTable(secondaryText, mainText)
+	data := t.dc.Current().PreviewTable(secondaryText, mainText)
 
 	t.showData(mainText, data)
 }
@@ -230,7 +228,7 @@ func (t *MyTUI) ExecuteQuery(key tcell.Key) {
 	query := t.QueryInput.GetText()
 
 	t.showMessage("Executing...")
-	data, err := t.data.Query(schema, query)
+	data, err := t.dc.Current().Query(schema, query)
 	if err != nil {
 		t.showError(err)
 	} else {
