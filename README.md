@@ -4,8 +4,6 @@
 
 It provides features like,
 
-First, it checks in the current directory, then in the user's home directory.
-
 - Connect to multiple data sources and instances.
 - List all schemas in a selected data source.
 - List all tables in a selected scheme.
