@@ -16,7 +16,7 @@ First, it checks in the current directory, then in the user's home directory.
 Currently supported databases:
 
 - MySQL
-- PostgreSQL (soon)
+- PostgreSQL
 - SQLite (soon)
 
 ## Usage
@@ -25,13 +25,13 @@ By default `dbui` uses configuration file (`dbui.yaml`).
 
 ```yaml
 dataSources:
-  - name: tiger
+  - alias: employees
     type: mysql
-    dsn: "..."
-  - name: lion
-    type: mysql
-    dsn: "..."
-defaut: tiger
+    dsn: "root:demo@(localhost:3316)/employees"
+  - alias: world-db
+    type: postgresql
+    dsn: "user=world password=world123 host=localhost port=5432 dbname=world-db sslmode=disable"
+defaut: employees
 ```
 
 First, it checks in the current directory, then in the user's home directory.
