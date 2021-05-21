@@ -213,7 +213,7 @@ func (t *MyTUI) LoadData() {
 	if len(schemas) > 0 {
 		firstSchema = schemas[0]
 	} else {
-		t.showWarning("no database to select")
+		t.showWarning("no schema to select")
 		return
 	}
 

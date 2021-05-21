@@ -30,9 +30,10 @@ func main() {
 			time.Sleep(2 * time.Second)
 		} else {
 			appConfig = &config.AppConfig{
-				DataSources: []config.DataSourceConfig{{"custom", connType, connDSN}},
-				Default:     "custom",
+				DataSourcesProp: []config.DataSourceConfig{},
+				DefaultProp:     "custom",
 			}
+			appConfig.DataSourcesProp = append(appConfig.DataSourcesProp, config.DataSourceConfig{AliasProp: "custom", TypeProp: connType, DSNProp: connDSN})
 			customDSNMode = true
 		}
 	}

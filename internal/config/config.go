@@ -1,6 +1,7 @@
 package config
 
 import (
+	"dbui/internal"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -8,13 +9,13 @@ import (
 
 type (
 	DataSourceConfig struct {
-		Alias string `yaml:"alias"`
-		Type  string `yaml:"type"`
-		DSN   string `yaml:"dsn"`
+		AliasProp string `yaml:"alias"`
+		TypeProp  string `yaml:"type"`
+		DSNProp   string `yaml:"dsn"`
 	}
 	AppConfig struct {
-		DataSources []DataSourceConfig `yaml:"dataSources"`
-		Default     string             `yaml:"default"`
+		DataSourcesProp []DataSourceConfig `yaml:"dataSources"`
+		DefaultProp     string             `yaml:"default"`
 	}
 )
 
@@ -31,4 +32,29 @@ func New(file string) (*AppConfig, error) {
 	}
 
 	return appConfig, nil
+}
+
+func (ac AppConfig) DataSourceConfigs() (res map[string]internal.DataSourceConfig) {
+	res = map[string]internal.DataSourceConfig{}
+	for _, dsc := range ac.DataSourcesProp {
+		res[dsc.AliasProp] = dsc
+	}
+
+	return
+}
+
+func (ac AppConfig) Default() string {
+	return ac.DefaultProp
+}
+
+func (dsc DataSourceConfig) Alias() string {
+	return dsc.AliasProp
+}
+
+func (dsc DataSourceConfig) Type() string {
+	return dsc.TypeProp
+}
+
+func (dsc DataSourceConfig) DSN() string {
+	return dsc.DSNProp
 }

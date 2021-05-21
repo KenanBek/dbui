@@ -1,6 +1,16 @@
 package internal
 
 type (
+	AppConfig interface {
+		DataSourceConfigs() map[string]DataSourceConfig
+		Default() string
+	}
+	DataSourceConfig interface {
+		Alias() string
+		Type() string
+		DSN() string
+	}
+
 	// DataSource defines an interface for specific data source implementations. All supported
 	// data sources like MySQL, PostgreSQL, etc., must implement this interface.
 	DataSource interface {

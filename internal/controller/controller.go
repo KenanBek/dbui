@@ -2,7 +2,6 @@ package controller
 
 import (
 	"dbui/internal"
-	"dbui/internal/config"
 	"dbui/internal/mysql"
 	"dbui/internal/postgresql"
 	"errors"
@@ -19,79 +18,82 @@ var (
 )
 
 type Controller struct {
-	dsConfigs      map[string]config.DataSourceConfig // map of alias to DataSourceConfig.
-	connectionPool map[string]internal.DataSource
-	current        internal.DataSource
+	appConfig         internal.AppConfig
+	dataSourceConfigs map[string]internal.DataSourceConfig
+	connectionPool    map[string]internal.DataSource
+	current           internal.DataSource
 }
 
-func (c *Controller) getConnectionOrConnect(conn config.DataSourceConfig) (internal.DataSource, error) {
+func (c *Controller) getConnectionOrConnect(conn internal.DataSourceConfig) (internal.DataSource, error) {
 	// Check if there is already initialized DataSource associated with the alias.
-	if dbConn, ok := c.connectionPool[conn.Alias]; ok {
+	if dbConn, ok := c.connectionPool[conn.Alias()]; ok {
 		// TODO: Check connection's status (IDLE dsConfigs might die).
 		return dbConn, nil
 	}
 
-	switch conn.Type {
+	switch conn.Type() {
 	case "mysql":
-		dbConn, err := mysql.New(conn.DSN)
+		dbConn, err := mysql.New(conn.DSN())
 		if err != nil {
 			return nil, err
 		}
-		c.connectionPool[conn.Alias] = dbConn
+		c.connectionPool[conn.Alias()] = dbConn
 		return dbConn, nil
 	case "postgresql":
-		dbConn, err := postgresql.New(conn.DSN)
+		dbConn, err := postgresql.New(conn.DSN())
 		if err != nil {
 			return nil, err
 		}
-		c.connectionPool[conn.Alias] = dbConn
+		c.connectionPool[conn.Alias()] = dbConn
 		return dbConn, nil
 	default:
 		return nil, ErrUnsupportedDatabaseType
 	}
 }
 
-func New(appConfig *config.AppConfig) (c *Controller, err error) {
-	if appConfig == nil || len(appConfig.DataSources) == 0 {
+func New(appConfig internal.AppConfig) (c *Controller, err error) {
+	if appConfig == nil || len(appConfig.DataSourceConfigs()) == 0 {
 		return nil, ErrEmptyConnection
 	}
 
 	c = &Controller{
-		dsConfigs:      map[string]config.DataSourceConfig{},
-		connectionPool: map[string]internal.DataSource{},
+		appConfig:         appConfig,
+		dataSourceConfigs: appConfig.DataSourceConfigs(),
+		connectionPool:    map[string]internal.DataSource{},
 	}
 
-	for _, dsConfig := range appConfig.DataSources {
-		c.dsConfigs[dsConfig.Alias] = dsConfig
-	}
-
-	var defaultDS config.DataSourceConfig
-	if appConfig.Default != "" {
-		defaultDS = c.dsConfigs[appConfig.Default]
+	var defaultDSC internal.DataSourceConfig
+	if appConfig.Default() != "" {
+		defaultDSC = c.dataSourceConfigs[appConfig.Default()]
 	} else {
-		defaultDS = appConfig.DataSources[0]
+		// pick the first one
+		for _, dsc := range c.dataSourceConfigs {
+			defaultDSC = dsc
+			break
+		}
 	}
 
-	c.current, err = c.getConnectionOrConnect(defaultDS)
+	c.current, err = c.getConnectionOrConnect(defaultDSC)
 	return
 }
 
 func (c *Controller) List() (result [][]string) {
 	result = [][]string{}
 
-	for alias, conf := range c.dsConfigs {
-		result = append(result, []string{alias, conf.Type})
+	// TODO: refactor to keep the same order.
+	for alias, conf := range c.dataSourceConfigs {
+		result = append(result, []string{alias, conf.Type()})
 	}
 
 	return
 }
 
 func (c *Controller) Switch(alias string) (err error) {
-	if _, ok := c.dsConfigs[alias]; !ok {
+	if _, ok := c.dataSourceConfigs[alias]; !ok {
 		return ErrAliasDoesNotExists
 	}
 
-	c.current, err = c.getConnectionOrConnect(c.dsConfigs[alias])
+	c.current, err = c.getConnectionOrConnect(c.dataSourceConfigs[alias])
 	return
 }
 
