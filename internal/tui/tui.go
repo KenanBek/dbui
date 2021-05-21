@@ -10,9 +10,13 @@ import (
 	"github.com/rivo/tview"
 )
 
-var (
-	FooterText = "Ctrl-c EXIT"
-	HeaderText = "Select table and press ENTER to preview | Ctrl+r refresh | Ctrl-f focus"
+const (
+	TitleSourcesView = "Sources [ Ctrl-E ]"
+	TitleSchemasView = "Schemas [ Ctrl-D ]"
+	TitleTablesView  = "Tables [ Ctrl-A ]"
+	TitleDataView    = "Data [ Ctrl-S ]"
+	TitleQueryView   = "Execute Query [ Ctrl-Q ]"
+	TitleFooter      = "Focus [ Ctrl-F ] · Exit [ Ctrl-C ]"
 )
 
 type MyTUI struct {
@@ -37,7 +41,7 @@ func (t *MyTUI) newPrimitive(text string) tview.Primitive {
 }
 
 func (t *MyTUI) resetMessage() {
-	t.FooterText.SetText(FooterText).SetTextColor(tcell.ColorWhite)
+	t.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorWhite)
 	t.App.Draw()
 }
 
@@ -78,15 +82,15 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 			t.DataList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
 		}
 	}
-	t.DataList.SetTitle(fmt.Sprintf("Data (Ctrl-s): %s", label))
+	t.DataList.SetTitle(fmt.Sprintf("%s: %s", TitleDataView, label))
 	t.DataList.ScrollToBeginning().SetSelectable(true, false)
 }
 
 func (t *MyTUI) toggleFocusMode() {
 	if t.focusMode {
-		t.Grid.SetRows(3, 0, 0, 2).SetColumns(30, 0, 30)
+		t.Grid.SetRows(0, 2).SetColumns(50, 0)
 	} else {
-		t.Grid.SetRows(1, 0, 0, 1).SetColumns(1, 0, 1)
+		t.Grid.SetRows(0, 2).SetColumns(1, 0)
 	}
 	t.focusMode = !t.focusMode
 }
@@ -97,22 +101,21 @@ func NewMyTUI(dataController internal.DataController) *MyTUI {
 	t.App = tview.NewApplication()
 
 	// View elements
-	t.TablesList = tview.NewList().ShowSecondaryText(false)
-	t.SourcesList = tview.NewList().ShowSecondaryText(true)
+	t.SourcesList = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
+	t.TablesList = tview.NewList().ShowSecondaryText(false)
 
 	t.DataList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
 	t.QueryInput = tview.NewInputField()
 
-	t.HeaderText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(HeaderText)
-	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(FooterText)
+	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooter)
 
 	// Configure appearance
-	t.TablesList.SetTitle("Tables (Ctrl-a)").SetBorder(true)
-	t.SourcesList.SetTitle("Sources (Ctrl-e)").SetBorder(true)
-	t.SchemasList.SetTitle("Schemas (Ctrl-d)").SetBorder(true)
-	t.DataList.SetTitle("Data (Ctrl-s)").SetBorder(true)
-	t.QueryInput.SetTitle("SQL Query (Ctrl-q)").SetBorder(true)
+	t.SourcesList.SetTitle(TitleSourcesView).SetBorder(true)
+	t.SchemasList.SetTitle(TitleSchemasView).SetBorder(true)
+	t.TablesList.SetTitle(TitleTablesView).SetBorder(true)
+	t.DataList.SetTitle(TitleDataView).SetBorder(true)
+	t.QueryInput.SetTitle(TitleQueryView).SetBorder(true)
 
 	// Input handlers
 	t.TablesList.SetSelectedFunc(t.TableSelected)
@@ -120,20 +123,22 @@ func NewMyTUI(dataController internal.DataController) *MyTUI {
 	t.SourcesList.SetSelectedFunc(t.SourceSelected)
 	t.QueryInput.SetDoneFunc(t.ExecuteQuery)
 
+	navigate := tview.NewGrid().SetRows(0, 0, 0).
+		AddItem(t.SourcesList, 0, 0, 1, 1, 0, 0, true).
+		AddItem(t.SchemasList, 1, 0, 1, 1, 0, 0, false).
+		AddItem(t.TablesList, 2, 0, 1, 1, 0, 0, false)
+
 	previewAndQuery := tview.NewGrid().SetRows(0, 3).
 		AddItem(t.DataList, 0, 0, 1, 1, 0, 0, false).
 		AddItem(t.QueryInput, 1, 0, 1, 1, 0, 0, false)
 
 	t.Grid = tview.NewGrid().
-		SetRows(3, 0, 0, 2).
-		SetColumns(30, 0, 30).
+		SetRows(0, 2).
+		SetColumns(50, 0).
 		SetBorders(false).
-		AddItem(t.HeaderText, 0, 0, 1, 3, 0, 0, false).
-		AddItem(t.TablesList, 1, 0, 2, 1, 0, 0, true).
-		AddItem(previewAndQuery, 1, 1, 2, 1, 0, 0, false).
-		AddItem(t.SourcesList, 1, 2, 1, 1, 0, 0, false).
-		AddItem(t.SchemasList, 2, 2, 1, 1, 0, 0, false).
-		AddItem(t.FooterText, 3, 0, 1, 3, 0, 0, false)
+		AddItem(navigate, 0, 0, 1, 1, 0, 0, true).
+		AddItem(previewAndQuery, 0, 1, 1, 1, 0, 0, false).
+		AddItem(t.FooterText, 1, 0, 1, 2, 0, 0, false)
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
@@ -174,7 +179,7 @@ func (t *MyTUI) Start() error {
 
 func (t *MyTUI) LoadData() {
 	t.TablesList.Clear()
-	t.DataList.Clear().SetTitle("Data (Ctrl-s)")
+	t.DataList.Clear().SetTitle(TitleDataView)
 	t.SchemasList.Clear()
 
 	schemas, err := t.dc.Current().ListSchemas()
