@@ -11,7 +11,8 @@
 *.so
 *.dylib
 
-# App demo
+# Project specific
+dbui.yaml
 demodata
 
 # Test binary, built with `go test -c`
