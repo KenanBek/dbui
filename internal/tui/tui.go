@@ -10,12 +10,33 @@ import (
 	"github.com/rivo/tview"
 )
 
+type (
+	// KeyOp defines dbui specific hotkey operations.
+	KeyOp int16
+)
+
 const (
-	TitleSourcesView = "Sources [ Ctrl-E ]"
-	TitleSchemasView = "Schemas [ Ctrl-D ]"
-	TitleTablesView  = "Tables [ Ctrl-A ]"
-	TitleDataView    = "Data [ Ctrl-S ]"
-	TitleQueryView   = "Execute Query [ Ctrl-Q ]"
+	KeySourcesOp KeyOp = iota
+	KeySchemasOp
+	KeyTablesOp
+	KeyPreviewOp
+	KeyQueryOp
+)
+
+var (
+	KeyMapping = map[KeyOp]tcell.Key{
+		KeySourcesOp: tcell.KeyCtrlA,
+		KeySchemasOp: tcell.KeyCtrlS,
+		KeyTablesOp:  tcell.KeyCtrlD,
+		KeyPreviewOp: tcell.KeyCtrlE,
+		KeyQueryOp:   tcell.KeyCtrlQ,
+	}
+
+	TitleSourcesView = fmt.Sprintf("Sources [ %s ]", tcell.KeyNames[KeyMapping[KeySourcesOp]])
+	TitleSchemasView = fmt.Sprintf("Schemas [ %s ]", tcell.KeyNames[KeyMapping[KeySchemasOp]])
+	TitleTablesView  = fmt.Sprintf("Tables [ %s ]", tcell.KeyNames[KeyMapping[KeyTablesOp]])
+	TitlePreviewView = fmt.Sprintf("Preview [ %s ]", tcell.KeyNames[KeyMapping[KeyPreviewOp]])
+	TitleQueryView   = fmt.Sprintf("Query [ %s ]", tcell.KeyNames[KeyMapping[KeyQueryOp]])
 	TitleFooter      = "Focus [ Ctrl-F ] · Exit [ Ctrl-C ]"
 )
 
@@ -82,7 +103,7 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 			t.DataList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
 		}
 	}
-	t.DataList.SetTitle(fmt.Sprintf("%s: %s", TitleDataView, label))
+	t.DataList.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
 	t.DataList.ScrollToBeginning().SetSelectable(true, false)
 }
 
@@ -114,7 +135,7 @@ func NewMyTUI(dataController internal.DataController) *MyTUI {
 	t.SourcesList.SetTitle(TitleSourcesView).SetBorder(true)
 	t.SchemasList.SetTitle(TitleSchemasView).SetBorder(true)
 	t.TablesList.SetTitle(TitleTablesView).SetBorder(true)
-	t.DataList.SetTitle(TitleDataView).SetBorder(true)
+	t.DataList.SetTitle(TitlePreviewView).SetBorder(true)
 	t.QueryInput.SetTitle(TitleQueryView).SetBorder(true)
 
 	// Input handlers
@@ -142,16 +163,16 @@ func NewMyTUI(dataController internal.DataController) *MyTUI {
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
-		case tcell.KeyCtrlQ:
-			t.App.SetFocus(t.QueryInput)
-		case tcell.KeyCtrlA:
-			t.App.SetFocus(t.TablesList)
-		case tcell.KeyCtrlS:
-			t.App.SetFocus(t.DataList)
-		case tcell.KeyCtrlE:
+		case KeyMapping[KeySourcesOp]:
 			t.App.SetFocus(t.SourcesList)
-		case tcell.KeyCtrlD:
+		case KeyMapping[KeySchemasOp]:
 			t.App.SetFocus(t.SchemasList)
+		case KeyMapping[KeyTablesOp]:
+			t.App.SetFocus(t.TablesList)
+		case KeyMapping[KeyPreviewOp]:
+			t.App.SetFocus(t.DataList)
+		case KeyMapping[KeyQueryOp]:
+			t.App.SetFocus(t.QueryInput)
 		case tcell.KeyCtrlR:
 			t.LoadData()
 		case tcell.KeyCtrlF:
@@ -179,7 +200,7 @@ func (t *MyTUI) Start() error {
 
 func (t *MyTUI) LoadData() {
 	t.TablesList.Clear()
-	t.DataList.Clear().SetTitle(TitleDataView)
+	t.DataList.Clear().SetTitle(TitlePreviewView)
 	t.SchemasList.Clear()
 
 	schemas, err := t.dc.Current().ListSchemas()
