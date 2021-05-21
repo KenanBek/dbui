@@ -72,6 +72,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	t := tui.NewMyTUI(ctrl)
+	t := tui.NewMyTUI(appConfig, ctrl)
 	_ = t.Start()
 }

@@ -41,6 +41,7 @@ var (
 )
 
 type MyTUI struct {
+	ac internal.AppConfig
 	dc internal.DataController
 
 	App         *tview.Application
@@ -116,8 +117,8 @@ func (t *MyTUI) toggleFocusMode() {
 	t.focusMode = !t.focusMode
 }
 
-func NewMyTUI(dataController internal.DataController) *MyTUI {
-	t := MyTUI{dc: dataController}
+func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *MyTUI {
+	t := MyTUI{ac: appConfig, dc: dataController}
 
 	t.App = tview.NewApplication()
 
@@ -186,8 +187,12 @@ func NewMyTUI(dataController internal.DataController) *MyTUI {
 	})
 
 	// TODO: Use-case when config was updated. Reload data sources.
-	for _, aliasType := range t.dc.List() {
+	for i, aliasType := range t.dc.List() {
 		t.SourcesList.AddItem(aliasType[0], aliasType[1], 0, nil)
+
+		if aliasType[0] == t.ac.Default() {
+			t.SourcesList.SetCurrentItem(i)
+		}
 	}
 	t.LoadData()
 
