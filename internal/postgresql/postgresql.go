@@ -52,10 +52,9 @@ func (d *dataSource) query(query string) (data [][]*string, err error) {
 func New(dsn string) (*dataSource, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		// TODO: Return err.
-		panic(err)
+		return nil, err
 	}
-	// See "Important settings" section.
+
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
