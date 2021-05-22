@@ -41,18 +41,22 @@ var (
 )
 
 type MyTUI struct {
+	// Internals
 	ac internal.AppConfig
 	dc internal.DataController
 
-	App         *tview.Application
-	Grid        *tview.Grid
-	TablesList  *tview.List
-	PreviewList *tview.Table
-	QueryInput  *tview.InputField
-	SourcesList *tview.List
-	SchemasList *tview.List
-	FooterText  *tview.TextView
-	focusMode   bool
+	// States
+	focusMode bool
+
+	// View elements
+	App          *tview.Application
+	Grid         *tview.Grid
+	Sources      *tview.List
+	Schemas      *tview.List
+	Tables       *tview.List
+	PreviewTable *tview.Table
+	QueryInput   *tview.InputField
+	FooterText   *tview.TextView
 }
 
 func (t *MyTUI) newPrimitive(text string) tview.Primitive {
@@ -82,7 +86,7 @@ func (t *MyTUI) showError(err error) {
 }
 
 func (t *MyTUI) showData(label string, data [][]*string) {
-	t.PreviewList.Clear()
+	t.PreviewTable.Clear()
 
 	if len(data) == 0 {
 		return
@@ -100,11 +104,11 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 				cellColor = tcell.ColorYellow
 			}
 
-			t.PreviewList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+			t.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
 		}
 	}
-	t.PreviewList.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
-	t.PreviewList.ScrollToBeginning().SetSelectable(true, false)
+	t.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
+	t.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
 }
 
 func (t *MyTUI) toggleFocusMode() {
@@ -116,13 +120,13 @@ func (t *MyTUI) toggleFocusMode() {
 	t.focusMode = !t.focusMode
 }
 
-func (t *MyTUI) getSelectedScheme() (scheme string, err error) {
+func (t *MyTUI) getSelectedSchema() (schema string, err error) {
 	defer func() {
 		if recover() != nil {
 			err = errors.New("no database to select")
 		}
 	}()
-	scheme, _ = t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
+	schema, _ = t.Schemas.GetItemText(t.Schemas.GetCurrentItem())
 
 	return
 }
@@ -133,13 +137,13 @@ func (t *MyTUI) getSelectedTable() (table string, err error) {
 			err = errors.New("no table to select")
 		}
 	}()
-	table, _ = t.TablesList.GetItemText(t.TablesList.GetCurrentItem())
+	table, _ = t.Tables.GetItemText(t.Tables.GetCurrentItem())
 
 	return
 }
 
 func (t *MyTUI) previewSelectedTable() {
-	schema, err := t.getSelectedScheme()
+	schema, err := t.getSelectedSchema()
 	if err != nil {
 		t.showError(err)
 		return
@@ -158,11 +162,11 @@ func (t *MyTUI) previewSelectedTable() {
 	}
 
 	t.showData(fmt.Sprintf("preview %s", table), data)
-	t.showMessage(fmt.Sprintf("Preview \"%s\" table executed succesfully!", table))
+	t.showMessage(fmt.Sprintf("PreviewTable \"%s\" table executed succesfully!", table))
 }
 
 func (t *MyTUI) describeSelectedTable() {
-	schema, err := t.getSelectedScheme()
+	schema, err := t.getSelectedSchema()
 	if err != nil {
 		t.showError(err)
 		return
@@ -186,37 +190,36 @@ func (t *MyTUI) describeSelectedTable() {
 
 func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *MyTUI {
 	t := MyTUI{ac: appConfig, dc: dataController}
-
 	t.App = tview.NewApplication()
 
 	// View elements
-	t.SourcesList = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
-	t.SchemasList = tview.NewList().ShowSecondaryText(false)
-	t.TablesList = tview.NewList().ShowSecondaryText(false)
-	t.PreviewList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
+	t.Sources = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
+	t.Schemas = tview.NewList().ShowSecondaryText(false)
+	t.Tables = tview.NewList().ShowSecondaryText(false)
+	t.PreviewTable = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
 	t.QueryInput = tview.NewInputField()
 	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooter).SetTextColor(tcell.ColorGray)
 
 	// Configure appearance
-	t.SourcesList.SetTitle(TitleSourcesView).SetBorder(true)
-	t.SchemasList.SetTitle(TitleSchemasView).SetBorder(true)
-	t.TablesList.SetTitle(TitleTablesView).SetBorder(true)
-	t.PreviewList.SetTitle(TitlePreviewView).SetBorder(true)
+	t.Sources.SetTitle(TitleSourcesView).SetBorder(true)
+	t.Schemas.SetTitle(TitleSchemasView).SetBorder(true)
+	t.Tables.SetTitle(TitleTablesView).SetBorder(true)
+	t.PreviewTable.SetTitle(TitlePreviewView).SetBorder(true)
 	t.QueryInput.SetTitle(TitleQueryView).SetBorder(true)
 
 	// Input handlers
-	t.TablesList.SetSelectedFunc(t.TableSelected)
-	t.SchemasList.SetSelectedFunc(t.SchemeSelected)
-	t.SourcesList.SetSelectedFunc(t.SourceSelected)
-	t.QueryInput.SetDoneFunc(t.ExecuteQuery)
+	t.Tables.SetSelectedFunc(t.TableSelected)
+	t.Schemas.SetSelectedFunc(t.SchemaSelected)
+	t.Sources.SetSelectedFunc(t.SourceSelected)
+	t.QueryInput.SetDoneFunc(t.QueryExecuted)
 
 	// Layout
 	navigate := tview.NewGrid().SetRows(0, 0, 0).
-		AddItem(t.SourcesList, 0, 0, 1, 1, 0, 0, true).
-		AddItem(t.SchemasList, 1, 0, 1, 1, 0, 0, false).
-		AddItem(t.TablesList, 2, 0, 1, 1, 0, 0, false)
+		AddItem(t.Sources, 0, 0, 1, 1, 0, 0, true).
+		AddItem(t.Schemas, 1, 0, 1, 1, 0, 0, false).
+		AddItem(t.Tables, 2, 0, 1, 1, 0, 0, false)
 	previewAndQuery := tview.NewGrid().SetRows(0, 3).
-		AddItem(t.PreviewList, 0, 0, 1, 1, 0, 0, false).
+		AddItem(t.PreviewTable, 0, 0, 1, 1, 0, 0, false).
 		AddItem(t.QueryInput, 1, 0, 1, 1, 0, 0, false)
 	t.Grid = tview.NewGrid().
 		SetRows(0, 2).
@@ -230,10 +233,10 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 
 	// TODO: Use-case when config was updated. Reload data sources.
 	for i, aliasType := range t.dc.List() {
-		t.SourcesList.AddItem(aliasType[0], aliasType[1], 0, nil)
+		t.Sources.AddItem(aliasType[0], aliasType[1], 0, nil)
 
 		if aliasType[0] == t.ac.Default() {
-			t.SourcesList.SetCurrentItem(i)
+			t.Sources.SetCurrentItem(i)
 		}
 	}
 	t.LoadData()
@@ -246,9 +249,9 @@ func (t *MyTUI) Start() error {
 }
 
 func (t *MyTUI) LoadData() {
-	t.TablesList.Clear()
-	t.PreviewList.Clear().SetTitle(TitlePreviewView)
-	t.SchemasList.Clear()
+	t.Tables.Clear()
+	t.PreviewTable.Clear().SetTitle(TitlePreviewView)
+	t.Schemas.Clear()
 
 	schemas, err := t.dc.Current().ListSchemas()
 	if err != nil {
@@ -271,73 +274,11 @@ func (t *MyTUI) LoadData() {
 	}
 
 	for _, table := range tables {
-		t.TablesList.AddItem(table, "", 0, nil)
+		t.Tables.AddItem(table, "", 0, nil)
 	}
 	for _, schema := range schemas {
-		t.SchemasList.AddItem(schema, "", 0, nil)
+		t.Schemas.AddItem(schema, "", 0, nil)
 	}
 
-	t.App.SetFocus(t.TablesList)
-}
-
-func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	err := t.dc.Switch(mainText)
-	if err != nil {
-		t.showError(err)
-		return
-	}
-
-	err = t.dc.Current().Ping()
-	if err != nil {
-		t.showError(err)
-		return
-	}
-
-	t.LoadData()
-	t.App.SetFocus(t.SchemasList)
-}
-
-func (t *MyTUI) SchemeSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	t.TablesList.Clear()
-
-	tables, err := t.dc.Current().ListTables(mainText)
-	if err != nil {
-		t.showError(err)
-		return
-	}
-
-	for _, table := range tables {
-		t.TablesList.AddItem(table, mainText, 0, nil)
-	}
-
-	t.App.SetFocus(t.TablesList)
-}
-
-func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
-	data, err := t.dc.Current().PreviewTable(secondaryText, mainText)
-	if err != nil {
-		t.showError(err)
-		return
-	}
-
-	t.showData(mainText, data)
-	t.App.SetFocus(t.PreviewList)
-}
-
-func (t *MyTUI) ExecuteQuery(key tcell.Key) {
-	scheme, err := t.getSelectedScheme()
-
-	if err != nil {
-		t.showError(err)
-	}
-
-	query := t.QueryInput.GetText()
-	t.showMessage("Executing...")
-	data, err := t.dc.Current().Query(scheme, query)
-	if err != nil {
-		t.showError(err)
-	} else {
-		t.showData("query", data)
-		t.showMessage(fmt.Sprintf("Query \"%s\" executed succesfully!", query))
-	}
+	t.App.SetFocus(t.Tables)
 }

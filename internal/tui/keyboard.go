@@ -7,23 +7,23 @@ import (
 
 func (t *MyTUI) setupKeyboard() {
 	focusMapping := map[tview.Primitive]struct{ next, prev tview.Primitive }{
-		t.SourcesList: {t.SchemasList, t.QueryInput},
-		t.SchemasList: {t.TablesList, t.SourcesList},
-		t.TablesList:  {t.PreviewList, t.SchemasList},
-		t.PreviewList: {t.QueryInput, t.TablesList},
-		t.QueryInput:  {t.SourcesList, t.PreviewList},
+		t.Sources:      {t.Schemas, t.QueryInput},
+		t.Schemas:      {t.Tables, t.Sources},
+		t.Tables:       {t.PreviewTable, t.Schemas},
+		t.PreviewTable: {t.QueryInput, t.Tables},
+		t.QueryInput:   {t.Sources, t.PreviewTable},
 	}
 
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case KeyMapping[KeySourcesOp]:
-			t.App.SetFocus(t.SourcesList)
+			t.App.SetFocus(t.Sources)
 		case KeyMapping[KeySchemasOp]:
-			t.App.SetFocus(t.SchemasList)
+			t.App.SetFocus(t.Schemas)
 		case KeyMapping[KeyTablesOp]:
-			t.App.SetFocus(t.TablesList)
+			t.App.SetFocus(t.Tables)
 		case KeyMapping[KeyPreviewOp]:
-			t.App.SetFocus(t.PreviewList)
+			t.App.SetFocus(t.PreviewTable)
 		case KeyMapping[KeyQueryOp]:
 			t.App.SetFocus(t.QueryInput)
 		case tcell.KeyCtrlR:
@@ -52,7 +52,7 @@ func (t *MyTUI) setupKeyboard() {
 		}
 		return event
 	})
-	t.TablesList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	t.Tables.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'e':
 			t.describeSelectedTable()

@@ -6,9 +6,9 @@ It provides features like,
 
 - Connect to multiple data sources and instances.
 - List all schemas in a selected data source.
-- List all tables in a selected scheme.
+- List all tables in a selected schema.
 - Preview a selected table.
-- Query a selected table or scheme.
+- Query a selected table or schema.
 - User-friendly UI features like query execution status, warning and error messages, full-screen and focus modes.
 
 Currently supported databases:
