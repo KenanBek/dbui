@@ -37,7 +37,7 @@ var (
 	TitleTablesView  = fmt.Sprintf("Tables [ %s ]", tcell.KeyNames[KeyMapping[KeyTablesOp]])
 	TitlePreviewView = fmt.Sprintf("Preview [ %s ]", tcell.KeyNames[KeyMapping[KeyPreviewOp]])
 	TitleQueryView   = fmt.Sprintf("Query [ %s ]", tcell.KeyNames[KeyMapping[KeyQueryOp]])
-	TitleFooter      = "Focus [ Ctrl-F ] · Exit [ Ctrl-C ]"
+	TitleFooter      = "Navigate [ Tab / Shift-Tab ] · Focus [ Ctrl-F ] · Exit [ Ctrl-C ]"
 )
 
 type MyTUI struct {
@@ -47,11 +47,10 @@ type MyTUI struct {
 	App         *tview.Application
 	Grid        *tview.Grid
 	TablesList  *tview.List
-	DataList    *tview.Table
+	PreviewList *tview.Table
 	QueryInput  *tview.InputField
 	SourcesList *tview.List
 	SchemasList *tview.List
-	HeaderText  *tview.TextView
 	FooterText  *tview.TextView
 	focusMode   bool
 }
@@ -63,7 +62,7 @@ func (t *MyTUI) newPrimitive(text string) tview.Primitive {
 }
 
 func (t *MyTUI) resetMessage() {
-	t.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorWhite)
+	t.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
 	t.App.Draw()
 }
 
@@ -83,7 +82,7 @@ func (t *MyTUI) showError(err error) {
 }
 
 func (t *MyTUI) showData(label string, data [][]*string) {
-	t.DataList.Clear()
+	t.PreviewList.Clear()
 
 	if len(data) == 0 {
 		return
@@ -101,11 +100,11 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 				cellColor = tcell.ColorYellow
 			}
 
-			t.DataList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+			t.PreviewList.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
 		}
 	}
-	t.DataList.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
-	t.DataList.ScrollToBeginning().SetSelectable(true, false)
+	t.PreviewList.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
+	t.PreviewList.ScrollToBeginning().SetSelectable(true, false)
 }
 
 func (t *MyTUI) toggleFocusMode() {
@@ -117,6 +116,17 @@ func (t *MyTUI) toggleFocusMode() {
 	t.focusMode = !t.focusMode
 }
 
+func (t *MyTUI) getSelectedScheme() (scheme string, err error) {
+	defer func() {
+		if recover() != nil {
+			err = errors.New("no database to select")
+		}
+	}()
+	scheme, _ = t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
+
+	return
+}
+
 func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *MyTUI {
 	t := MyTUI{ac: appConfig, dc: dataController}
 
@@ -126,17 +136,15 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 	t.SourcesList = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
 	t.SchemasList = tview.NewList().ShowSecondaryText(false)
 	t.TablesList = tview.NewList().ShowSecondaryText(false)
-
-	t.DataList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
+	t.PreviewList = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
 	t.QueryInput = tview.NewInputField()
-
-	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooter)
+	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooter).SetTextColor(tcell.ColorGray)
 
 	// Configure appearance
 	t.SourcesList.SetTitle(TitleSourcesView).SetBorder(true)
 	t.SchemasList.SetTitle(TitleSchemasView).SetBorder(true)
 	t.TablesList.SetTitle(TitleTablesView).SetBorder(true)
-	t.DataList.SetTitle(TitlePreviewView).SetBorder(true)
+	t.PreviewList.SetTitle(TitlePreviewView).SetBorder(true)
 	t.QueryInput.SetTitle(TitleQueryView).SetBorder(true)
 
 	// Input handlers
@@ -145,15 +153,14 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 	t.SourcesList.SetSelectedFunc(t.SourceSelected)
 	t.QueryInput.SetDoneFunc(t.ExecuteQuery)
 
+	// Layout
 	navigate := tview.NewGrid().SetRows(0, 0, 0).
 		AddItem(t.SourcesList, 0, 0, 1, 1, 0, 0, true).
 		AddItem(t.SchemasList, 1, 0, 1, 1, 0, 0, false).
 		AddItem(t.TablesList, 2, 0, 1, 1, 0, 0, false)
-
 	previewAndQuery := tview.NewGrid().SetRows(0, 3).
-		AddItem(t.DataList, 0, 0, 1, 1, 0, 0, false).
+		AddItem(t.PreviewList, 0, 0, 1, 1, 0, 0, false).
 		AddItem(t.QueryInput, 1, 0, 1, 1, 0, 0, false)
-
 	t.Grid = tview.NewGrid().
 		SetRows(0, 2).
 		SetColumns(50, 0).
@@ -162,29 +169,7 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 		AddItem(previewAndQuery, 0, 1, 1, 1, 0, 0, false).
 		AddItem(t.FooterText, 1, 0, 1, 2, 0, 0, false)
 
-	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case KeyMapping[KeySourcesOp]:
-			t.App.SetFocus(t.SourcesList)
-		case KeyMapping[KeySchemasOp]:
-			t.App.SetFocus(t.SchemasList)
-		case KeyMapping[KeyTablesOp]:
-			t.App.SetFocus(t.TablesList)
-		case KeyMapping[KeyPreviewOp]:
-			t.App.SetFocus(t.DataList)
-		case KeyMapping[KeyQueryOp]:
-			t.App.SetFocus(t.QueryInput)
-		case tcell.KeyCtrlR:
-			t.LoadData()
-		case tcell.KeyCtrlF:
-			t.toggleFocusMode()
-		case tcell.KeyEscape:
-			if t.focusMode {
-				t.toggleFocusMode()
-			}
-		}
-		return event
-	})
+	t.setupKeyboard()
 
 	// TODO: Use-case when config was updated. Reload data sources.
 	for i, aliasType := range t.dc.List() {
@@ -205,7 +190,7 @@ func (t *MyTUI) Start() error {
 
 func (t *MyTUI) LoadData() {
 	t.TablesList.Clear()
-	t.DataList.Clear().SetTitle(TitlePreviewView)
+	t.PreviewList.Clear().SetTitle(TitlePreviewView)
 	t.SchemasList.Clear()
 
 	schemas, err := t.dc.Current().ListSchemas()
@@ -279,17 +264,7 @@ func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, 
 	}
 
 	t.showData(mainText, data)
-}
-
-func (t *MyTUI) getSelectedScheme() (scheme string, err error) {
-	defer func() {
-		if recover() != nil {
-			err = errors.New("no database to select")
-		}
-	}()
-	scheme, _ = t.SchemasList.GetItemText(t.SchemasList.GetCurrentItem())
-
-	return
+	t.App.SetFocus(t.PreviewList)
 }
 
 func (t *MyTUI) ExecuteQuery(key tcell.Key) {
