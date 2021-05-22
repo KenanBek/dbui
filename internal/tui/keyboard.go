@@ -52,4 +52,13 @@ func (t *MyTUI) setupKeyboard() {
 		}
 		return event
 	})
+	t.TablesList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case 'e':
+			t.describeSelectedTable()
+		case 'p':
+			t.previewSelectedTable()
+		}
+		return event
+	})
 }

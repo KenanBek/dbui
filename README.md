@@ -75,6 +75,13 @@ $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 - `Ctrl-F` - toggle focus-mode
 - `Ctrl-C` - exit
 
+#### Table Specific
+
+Use these keys when the table panel is active:
+
+- `e` - describe selected table
+- `p` - preview selected table (works as ENTER but does not change focus)
+
 ## Contribution
 
 The code and its sub-packages include various form of documentation: code comments or README files. Make sure to get

@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// dataSource implements internal.DataSource interface for MySQL storage.
+// dataSource implements internal.DataSource interface for PostgreSQL storage.
 type dataSource struct {
 	db *sql.DB
 }
@@ -108,11 +108,12 @@ func (d *dataSource) ListTables(schema string) (tables []string, err error) {
 }
 
 func (d *dataSource) PreviewTable(schema string, table string) ([][]*string, error) {
-	return d.query(fmt.Sprintf("SELECT * FROM %s LIMIT 100", table))
+	return d.query(fmt.Sprintf("SELECT * FROM %s LIMIT 10", table))
 }
 
-func (d *dataSource) DescribeTable(schema string, table string) [][]string {
-	return [][]string{}
+func (d *dataSource) DescribeTable(schema string, table string) ([][]*string, error) {
+	query := fmt.Sprintf("SELECT column_name, data_type, character_maximum_length, column_default, is_nullable FROM INFORMATION_SCHEMA.COLUMNS where table_name = '%s'", table)
+	return d.query(query)
 }
 
 func (d *dataSource) Query(schema, query string) ([][]*string, error) {

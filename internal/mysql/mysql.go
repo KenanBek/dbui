@@ -15,7 +15,7 @@ func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
 	data = [][]*string{}
 
 	tx, _ := d.db.Begin()
-	_, err = tx.Query(fmt.Sprintf("USE %s", schema)) // for some reasons ? did not work (TODO: check later)
+	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
 	if err != nil {
 		return
 	}
@@ -94,7 +94,7 @@ func (d *dataSource) ListTables(schema string) (tables []string, err error) {
 	tables = []string{}
 
 	tx, _ := d.db.Begin()
-	_, err = tx.Query(fmt.Sprintf("USE %s", schema)) // for some reasons ? did not work (TODO: check later)
+	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
 	if err != nil {
 		return
 	}
@@ -117,11 +117,11 @@ func (d *dataSource) ListTables(schema string) (tables []string, err error) {
 }
 
 func (d *dataSource) PreviewTable(schema string, table string) ([][]*string, error) {
-	return d.query(schema, fmt.Sprintf("SELECT * FROM %s LIMIT 100", table))
+	return d.query(schema, fmt.Sprintf("SELECT * FROM %s LIMIT 10", table))
 }
 
-func (d *dataSource) DescribeTable(schema string, table string) [][]string {
-	return [][]string{}
+func (d *dataSource) DescribeTable(schema string, table string) ([][]*string, error) {
+	return d.query(schema, fmt.Sprintf("DESCRIBE %s", table))
 }
 
 func (d *dataSource) Query(schema, query string) ([][]*string, error) {

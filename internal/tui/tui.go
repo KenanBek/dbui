@@ -127,6 +127,63 @@ func (t *MyTUI) getSelectedScheme() (scheme string, err error) {
 	return
 }
 
+func (t *MyTUI) getSelectedTable() (table string, err error) {
+	defer func() {
+		if recover() != nil {
+			err = errors.New("no table to select")
+		}
+	}()
+	table, _ = t.TablesList.GetItemText(t.TablesList.GetCurrentItem())
+
+	return
+}
+
+func (t *MyTUI) previewSelectedTable() {
+	schema, err := t.getSelectedScheme()
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	table, err := t.getSelectedTable()
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	data, err := t.dc.Current().PreviewTable(schema, table)
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	t.showData(fmt.Sprintf("preview %s", table), data)
+	t.showMessage(fmt.Sprintf("Preview \"%s\" table executed succesfully!", table))
+}
+
+func (t *MyTUI) describeSelectedTable() {
+	schema, err := t.getSelectedScheme()
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	table, err := t.getSelectedTable()
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	data, err := t.dc.Current().DescribeTable(schema, table)
+	if err != nil {
+		t.showError(err)
+		return
+	}
+
+	t.showData(fmt.Sprintf("describe %s", table), data)
+	t.showMessage(fmt.Sprintf("Describe \"%s\" table executed succesfully!", table))
+}
+
 func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *MyTUI {
 	t := MyTUI{ac: appConfig, dc: dataController}
 

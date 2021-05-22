@@ -18,7 +18,7 @@ type (
 		ListSchemas() ([]string, error)
 		ListTables(schema string) ([]string, error)
 		PreviewTable(schema, table string) ([][]*string, error) // PreviewTable returns preview data by schema and table name.
-		DescribeTable(schema, table string) [][]string
+		DescribeTable(schema, table string) ([][]*string, error)
 		Query(schema, query string) ([][]*string, error)
 	}
 
