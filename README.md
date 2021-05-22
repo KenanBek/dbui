@@ -17,7 +17,16 @@ Currently supported databases:
 - PostgreSQL
 - SQLite (soon)
 
+What's next?
+
+- Auto-generate SQL Queries for Insert, Update, Delete.
+- Save frequently used SQL Queries.
+- Configurable keyboard layout.
+- Autocomplete for SQL Queries.
+
 ## Usage
+
+### Configuration
 
 By default `dbui` uses configuration file (`dbui.yaml`).
 
@@ -47,15 +56,22 @@ $ dbui -dsn <connection string> -type <data source type>
 $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 ```
 
-### Hot keys
+### Default Keyboard Layout
 
 ![dbui keyboard hot keys](docs/keyboard-layout.png "DBUI Keyboard Hot Keys")
 
-- `Ctrl-A` - focus on tables
-- `Ctrl-S` - focus on preview/data
-- `Ctrl-D` - focus on schemes
-- `Ctrl-E` - focus on data sources
+#### Focus Hot Keys
+
+- `Ctrl-A` - sources
+- `Ctrl-S` - schemas
+- `Ctrl-D` - tables
+- `Ctrl-E` - preview
 - `Ctrl-Q` - query
+
+#### Special
+
+- `Tab` - navigate to the next element
+- `Shift-Tab` - navigate to the prev element
 - `Ctrl-F` - toggle focus-mode
 - `Ctrl-C` - exit
 
