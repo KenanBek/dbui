@@ -47,12 +47,13 @@
   ],
   [
     {
+      "c": "#2f7596",
+      "t": "#ffffff",
       "w": 1.5
     },
-    "Tab",
+    "Tab\nNavigation",
     {
       "c": "#0084c2",
-      "t": "#ffffff",
       "f": 2
     },
     "Q\nQuery",
@@ -67,7 +68,7 @@
       "t": "#ffffff",
       "f": 2
     },
-    "E\nSources",
+    "E\nPreview",
     "R\nReload",
     {
       "c": "#cccccc",
@@ -97,9 +98,9 @@
       "t": "#ffffff",
       "f": 2
     },
-    "A\nTables",
-    "S\nData",
-    "D\nSchema",
+    "A\nSources",
+    "S\nSchemas",
+    "D\nTables",
     "F\nFocus",
     {
       "c": "#cccccc",
@@ -120,9 +121,15 @@
   ],
   [
     {
+      "c": "#2f7596",
+      "t": "#ffffff",
       "w": 2.25
     },
     "Shift",
+    {
+      "c": "#cccccc",
+      "t": "#000000"
+    },
     "Z",
     "X",
     {
