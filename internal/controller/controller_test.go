@@ -4,6 +4,8 @@ import (
 	"dbui/internal"
 	"reflect"
 	"testing"
+
+	"github.com/golang/mock/gomock"
 )
 
 func TestController_getConnectionOrConnect(t *testing.T) {
@@ -49,14 +51,22 @@ func TestNew(t *testing.T) {
 	type args struct {
 		appConfig internal.AppConfig
 	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	emptyAppConfig := NewMockAppConfig(ctrl)
+	emptyAppConfig.EXPECT().DataSourceConfigs().Return(map[string]internal.DataSourceConfig{})
+
 	tests := []struct {
 		name    string
 		args    args
 		wantC   *Controller
 		wantErr bool
 	}{
-		{"empty appConfig", nil, nil, true},
+		{"empty appConfig", args{emptyAppConfig}, nil, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotC, err := New(tt.args.appConfig)
