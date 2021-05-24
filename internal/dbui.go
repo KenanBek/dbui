@@ -1,3 +1,4 @@
+//go:generate mockgen -source=dbui.go -destination=./controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
 package internal
 
 type (
