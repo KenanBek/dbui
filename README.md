@@ -8,23 +8,67 @@ It provides features like,
 - List all schemas in a selected data source.
 - List all tables in a selected schema.
 - Preview a selected table.
-- Query a selected table or schema.
-- User-friendly UI features like query execution status, warning and error messages, full-screen and focus modes.
+- Execute custom SQL queries on a selected table or schema.
+- User-friendly UI features like,
+    - query execution status,
+    - warning and error messages,
+    - full-screen and focus modes,
+    - mouse support.
 
-Currently supported databases:
+#### Currently supported databases
 
 - MySQL
 - PostgreSQL
 - SQLite (soon)
 
-What's next?
+#### What's next?
 
 - Auto-generate SQL Queries for Insert, Update, Delete.
 - Save frequently used SQL Queries.
 - Configurable keyboard layout.
 - Autocomplete for SQL Queries.
 
+#### Current status
+
+- 🚧 Under development, expect bugs, errors, and unexpected crashes.
+- 🐞 Bug and error reports are very appreciated.
+- 📣 I highly recommend to check for periodic updates.
+
 ## Usage
+
+### Install
+
+#### Option 1: Brew
+
+```shell
+brew isntall dbui
+```
+
+#### Option 2: Go Get
+
+```shell
+go get github.com/KenanBek/dbui
+```
+
+#### Option 3: Source Code (+demo databases)
+
+```shell
+git clone https://github.com/KenanBek/dbui.git
+cd dbui
+make demodbs # runs docker containers with mysql and postgresql demo dbs
+
+# you can destroy them by executing
+make demodbs/destroy
+```
+
+Copy configuration and run:
+
+```shell
+touch dbui.yaml # check below for the content
+make run
+```
+
+Copy/paste the configuration provided below for demo databases.
 
 ### Configuration
 
@@ -56,6 +100,22 @@ $ dbui -dsn <connection string> -type <data source type>
 $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 ```
 
+#### Summary of Configuration Order
+
+```shell
+# when
+$ dbui
+# read from `./dbui.yaml` if not then from `~/dbui.yaml`
+
+# when
+$ dbui -f /my/custom/dir/mydbui.yaml
+# read from custom directory `/my/custom/dir/mydbui.yaml`
+
+# when
+$ dbui -dsn "<connection-string>" -type mysql
+# init single connection mode
+```
+
 ### Default Keyboard Layout
 
 ![dbui keyboard hot keys](docs/keyboard-layout.png "DBUI Keyboard Hot Keys")
@@ -81,6 +141,12 @@ Use these keys when the table panel is active:
 
 - `e` - describe selected table
 - `p` - preview selected table (works as ENTER but does not change focus)
+
+#### Preview Specific
+
+Use these keys when the data preview panel is active:
+
+- `y` - copy a selected row into the clipboard.
 
 ## Contribution
 
