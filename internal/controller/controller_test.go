@@ -6,7 +6,97 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+
+	"github.com/stretchr/testify/suite"
 )
+
+// Configure Suite
+
+type ControllerTestSuite struct {
+	suite.Suite
+
+	MockCtrl             *gomock.Controller
+	EmptyAppConfig       *MockAppConfig
+	TwoConnAppConfig     *MockAppConfig
+	UnsupportedAppConfig *MockAppConfig
+}
+
+func (suite *ControllerTestSuite) SetupTest() {
+	suite.MockCtrl = gomock.NewController(suite.T())
+
+	// empty app config
+	suite.EmptyAppConfig = NewMockAppConfig(suite.MockCtrl)
+	suite.EmptyAppConfig.EXPECT().DataSourceConfigs().Return(map[string]internal.DataSourceConfig{}).AnyTimes()
+
+	// app config with an unsupported type
+	dscUnsupported := NewMockDataSourceConfig(suite.MockCtrl)
+	dscUnsupported.EXPECT().Type().Return("mycustomsql").AnyTimes()
+	dscUnsupported.EXPECT().Alias().Return("conn1").AnyTimes()
+	dscUnsupported.EXPECT().DSN().Return("conn1_dsn").AnyTimes()
+
+	suite.UnsupportedAppConfig = NewMockAppConfig(suite.MockCtrl)
+	suite.UnsupportedAppConfig.EXPECT().DataSourceConfigs().Return(map[string]internal.DataSourceConfig{
+		dscUnsupported.Alias(): dscUnsupported,
+	}).AnyTimes()
+	suite.UnsupportedAppConfig.EXPECT().Default().Return(dscUnsupported.Alias()).AnyTimes()
+
+	// two connection app config
+	dsc1 := NewMockDataSourceConfig(suite.MockCtrl)
+	dsc1.EXPECT().Type().Return("mysql").AnyTimes()
+	dsc1.EXPECT().Alias().Return("conn1").AnyTimes()
+	dsc1.EXPECT().DSN().Return("conn1_dsn").AnyTimes()
+
+	dsc2 := NewMockDataSourceConfig(suite.MockCtrl)
+	dsc2.EXPECT().Type().Return("postgresql").AnyTimes()
+	dsc2.EXPECT().Alias().Return("conn2").AnyTimes()
+	dsc2.EXPECT().DSN().Return("conn2_dsn").AnyTimes()
+
+	suite.TwoConnAppConfig = NewMockAppConfig(suite.MockCtrl)
+	suite.TwoConnAppConfig.EXPECT().DataSourceConfigs().Return(map[string]internal.DataSourceConfig{
+		dsc1.Alias(): dsc1,
+		dsc2.Alias(): dsc2,
+	}).AnyTimes()
+	suite.TwoConnAppConfig.EXPECT().Default().Return(dsc1.Alias()).AnyTimes()
+}
+
+func (suite *ControllerTestSuite) TearDownAllSuite() {
+	suite.MockCtrl.Finish()
+}
+
+func TestControllerTestSuite(t *testing.T) {
+	suite.Run(t, new(ControllerTestSuite))
+}
+
+// Suite Tests
+
+func (suite *ControllerTestSuite) TestNew() {
+	type args struct {
+		appConfig internal.AppConfig
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr error
+	}{
+		{"nil app config", args{}, ErrEmptyConnection},
+		{"empty app config", args{suite.EmptyAppConfig}, ErrEmptyConnection},
+		{"unsupported db type", args{suite.UnsupportedAppConfig}, ErrUnsupportedDatabaseType},
+		// {"two conn app config", args{suite.TwoConnAppConfig}, nil},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			_, err := New(tt.args.appConfig)
+
+			if err != tt.wantErr {
+				suite.Failf("Not an expected error", "New() error = \"%v\", wantErr \"%v\"", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+// Other Tests
 
 func TestController_getConnectionOrConnect(t *testing.T) {
 	type fields struct {
@@ -42,40 +132,6 @@ func TestController_getConnectionOrConnect(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getConnectionOrConnect() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestNew(t *testing.T) {
-	type args struct {
-		appConfig internal.AppConfig
-	}
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	emptyAppConfig := NewMockAppConfig(ctrl)
-	emptyAppConfig.EXPECT().DataSourceConfigs().Return(map[string]internal.DataSourceConfig{})
-
-	tests := []struct {
-		name    string
-		args    args
-		wantC   *Controller
-		wantErr bool
-	}{
-		{"empty appConfig", args{emptyAppConfig}, nil, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotC, err := New(tt.args.appConfig)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotC, tt.wantC) {
-				t.Errorf("New() gotC = %v, want %v", gotC, tt.wantC)
 			}
 		})
 	}
