@@ -1,3 +1,4 @@
+//go:generate mockgen -source=config.go -destination=../controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
 package config
 
 import (

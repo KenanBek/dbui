@@ -1,4 +1,3 @@
-
 REPO_ROOT?=$(shell pwd)
 
 # App
@@ -9,7 +8,11 @@ run:
 
 .PHONY: test
 test:
-	go test ./... -race -tags=component
+	go test ./... -race -cover -tags=component
+
+.PHONY: mock
+mock:
+	go generate ./...
 
 # Db
 
