@@ -20,7 +20,9 @@ func (t *MyTUI) SourceSelected(index int, mainText string, secondaryText string,
 	}
 
 	t.LoadData()
-	t.App.SetFocus(t.Schemas)
+	t.queueUpdate(func() {
+		t.App.SetFocus(t.Schemas)
+	})
 }
 
 func (t *MyTUI) SchemaSelected(index int, mainText string, secondaryText string, shortcut rune) {
@@ -32,11 +34,12 @@ func (t *MyTUI) SchemaSelected(index int, mainText string, secondaryText string,
 		return
 	}
 
-	for _, table := range tables {
-		t.Tables.AddItem(table, mainText, 0, nil)
-	}
-
-	t.App.SetFocus(t.Tables)
+	t.queueUpdate(func() {
+		for _, table := range tables {
+			t.Tables.AddItem(table, mainText, 0, nil)
+		}
+		t.App.SetFocus(t.Tables)
+	})
 }
 
 func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
@@ -47,7 +50,9 @@ func (t *MyTUI) TableSelected(index int, mainText string, secondaryText string, 
 	}
 
 	t.showData(mainText, data)
-	t.App.SetFocus(t.PreviewTable)
+	t.queueUpdate(func() {
+		t.App.SetFocus(t.PreviewTable)
+	})
 }
 
 func (t *MyTUI) QueryExecuted(key tcell.Key) {

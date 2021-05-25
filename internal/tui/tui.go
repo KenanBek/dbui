@@ -66,56 +66,69 @@ func (t *MyTUI) newPrimitive(text string) tview.Primitive {
 }
 
 func (t *MyTUI) resetMessage() {
-	t.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
-	t.App.Draw()
+	t.queueUpdateDraw(func() {
+		t.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
+	})
 }
 
 func (t *MyTUI) showMessage(msg string) {
-	t.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
+	t.queueUpdate(func() {
+		t.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
+	})
 	go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showWarning(msg string) {
-	t.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
+	t.queueUpdate(func() {
+		t.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
+	})
 	go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showError(err error) {
-	t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
+	t.queueUpdate(func() {
+		t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
+	})
 	go time.AfterFunc(3*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showData(label string, data [][]*string) {
-	t.PreviewTable.Clear()
+	t.queueUpdate(func() {
+		t.PreviewTable.Clear()
 
-	if len(data) == 0 {
-		return
-	}
-
-	for i, row := range data {
-		for j, col := range row {
-			var cellValue string
-			var cellColor = tcell.ColorWhite
-
-			if col != nil {
-				cellValue = *col
-			}
-			if i == 0 {
-				cellColor = tcell.ColorYellow
-			}
-
-			t.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+		if len(data) == 0 {
+			return
 		}
-	}
-	t.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
-	t.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
+
+		for i, row := range data {
+			for j, col := range row {
+				var cellValue string
+				var cellColor = tcell.ColorWhite
+
+				if col != nil {
+					cellValue = *col
+				}
+				if i == 0 {
+					cellColor = tcell.ColorYellow
+				}
+
+				t.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+			}
+		}
+		t.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
+		t.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
+	})
 }
 
 func (t *MyTUI) toggleFocusMode() {
 	if t.focusMode {
-		t.Grid.SetRows(0, 2).SetColumns(50, 0)
+		t.queueUpdateDraw(func() {
+			t.Grid.SetRows(0, 2).SetColumns(50, 0)
+		})
 	} else {
-		t.Grid.SetRows(0, 2).SetColumns(1, 0)
+		t.queueUpdateDraw(func() {
+			t.Grid.SetRows(0, 2).SetColumns(1, 0)
+		})
 	}
 	t.focusMode = !t.focusMode
 }
@@ -186,6 +199,18 @@ func (t *MyTUI) describeSelectedTable() {
 
 	t.showData(fmt.Sprintf("describe %s", table), data)
 	t.showMessage(fmt.Sprintf("Describe \"%s\" table executed succesfully!", table))
+}
+
+func (t *MyTUI) queueUpdate(f func()) {
+	go func() {
+		t.App.QueueUpdate(f)
+	}()
+}
+
+func (t *MyTUI) queueUpdateDraw(f func()) {
+	go func() {
+		t.App.QueueUpdateDraw(f)
+	}()
 }
 
 func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *MyTUI {
@@ -273,12 +298,13 @@ func (t *MyTUI) LoadData() {
 		return
 	}
 
-	for _, table := range tables {
-		t.Tables.AddItem(table, "", 0, nil)
-	}
-	for _, schema := range schemas {
-		t.Schemas.AddItem(schema, "", 0, nil)
-	}
-
-	t.App.SetFocus(t.Tables)
+	t.queueUpdate(func() {
+		for _, table := range tables {
+			t.Tables.AddItem(table, "", 0, nil)
+		}
+		for _, schema := range schemas {
+			t.Schemas.AddItem(schema, "", 0, nil)
+		}
+		t.App.SetFocus(t.Tables)
+	})
 }
