@@ -38,8 +38,8 @@ It provides features like,
 
 ##### Known Issues
 
-- A critical amount of tests.
-- If you query a single connection a lot, it will result in an `Error 1040: To many connections`
+- ❗️Critically low amount of tests.
+- ❗️If you query a single connection a lot, it will result in an `Error 1040: To many connections`
   error. [Working on a fix](https://github.com/KenanBek/dbui/tree/fix-deadlock).
 
 ## Table of Contents
@@ -50,7 +50,7 @@ It provides features like,
         - [Go Get](#option-2-go-get)
         - [Source Code](#option-3-source-code-demo-databases)
     - [Configuration](#configuration)
-        - [Configuration Order](#summary-of-configuration-order)
+        - [Configuration Order](#configuration-order)
     - [Keyboard Layout](#default-keyboard-layout)
         - [Focus Hot Keys](#focus-hot-keys)
         - [Special](#special)
@@ -123,7 +123,7 @@ $ dbui -dsn <connection string> -type <data source type>
 $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 ```
 
-#### Summary of Configuration Order
+#### Configuration Order
 
 ```shell
 # when
@@ -160,7 +160,7 @@ $ dbui -dsn "<connection-string>" -type mysql
 
 #### Table Specific
 
-Use these keys when the table panel is active:
+Use these keys when the tables panel is active:
 
 - `e` - describe selected table
 - `p` - preview selected table (works as ENTER but does not change focus)
@@ -169,7 +169,7 @@ Use these keys when the table panel is active:
 
 Use these keys when the data preview panel is active:
 
-- `y` - copy a selected row into the clipboard.
+- `y` - copy a selected row into the clipboard (coming soon).
 
 ## Contribution
 
