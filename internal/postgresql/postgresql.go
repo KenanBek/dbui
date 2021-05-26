@@ -3,6 +3,7 @@ package postgresql
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -56,9 +57,9 @@ func New(dsn string) (*dataSource, error) {
 		return nil, err
 	}
 
-	db.SetConnMaxLifetime(0)
-	db.SetMaxOpenConns(0)
-	db.SetMaxIdleConns(0)
+	db.SetConnMaxLifetime(time.Minute * 2)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 
 	return &dataSource{db: db}, nil
 }
