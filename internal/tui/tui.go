@@ -4,7 +4,6 @@ import (
 	"dbui/internal"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -72,28 +71,28 @@ func (t *MyTUI) resetMessage() {
 }
 
 func (t *MyTUI) showMessage(msg string) {
-	t.queueUpdate(func() {
+	t.queueUpdateDraw(func() {
 		t.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
 	})
-	go time.AfterFunc(2*time.Second, t.resetMessage)
+	// go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showWarning(msg string) {
-	t.queueUpdate(func() {
+	t.queueUpdateDraw(func() {
 		t.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
 	})
-	go time.AfterFunc(2*time.Second, t.resetMessage)
+	// go time.AfterFunc(2*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showError(err error) {
-	t.queueUpdate(func() {
+	t.queueUpdateDraw(func() {
 		t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
 	})
-	go time.AfterFunc(3*time.Second, t.resetMessage)
+	// go time.AfterFunc(3*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showData(label string, data [][]*string) {
-	t.queueUpdate(func() {
+	t.queueUpdateDraw(func() {
 		t.PreviewTable.Clear()
 
 		if len(data) == 0 {
@@ -201,6 +200,12 @@ func (t *MyTUI) describeSelectedTable() {
 	t.showMessage(fmt.Sprintf("Describe \"%s\" table executed succesfully!", table))
 }
 
+func (t *MyTUI) setFocus(p tview.Primitive) {
+	t.queueUpdateDraw(func() {
+		t.App.SetFocus(p)
+	})
+}
+
 func (t *MyTUI) queueUpdate(f func()) {
 	go func() {
 		t.App.QueueUpdate(f)
@@ -298,7 +303,7 @@ func (t *MyTUI) LoadData() {
 		return
 	}
 
-	t.queueUpdate(func() {
+	t.queueUpdateDraw(func() {
 		for _, table := range tables {
 			t.Tables.AddItem(table, "", 0, nil)
 		}

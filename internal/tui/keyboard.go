@@ -19,13 +19,13 @@ func (t *MyTUI) setupKeyboard() {
 		case KeyMapping[KeySourcesOp]:
 			t.App.SetFocus(t.Sources)
 		case KeyMapping[KeySchemasOp]:
-			t.App.SetFocus(t.Schemas)
+			t.setFocus(t.Schemas)
 		case KeyMapping[KeyTablesOp]:
-			t.App.SetFocus(t.Tables)
+			t.setFocus(t.Tables)
 		case KeyMapping[KeyPreviewOp]:
-			t.App.SetFocus(t.PreviewTable)
+			t.setFocus(t.PreviewTable)
 		case KeyMapping[KeyQueryOp]:
-			t.App.SetFocus(t.QueryInput)
+			t.setFocus(t.QueryInput)
 		case tcell.KeyCtrlR:
 			t.LoadData()
 		case tcell.KeyCtrlF:
@@ -40,13 +40,13 @@ func (t *MyTUI) setupKeyboard() {
 		// on Tab set focus to the next element
 		case tcell.KeyTab:
 			if focusMap, ok := focusMapping[t.App.GetFocus()]; ok {
-				t.App.SetFocus(focusMap.next)
+				t.setFocus(focusMap.next)
 			}
 			return nil // to avoid default Tab behaviour for the primitive
 		// on Backtab set focus to the prev element
 		case tcell.KeyBacktab:
 			if focusMap, ok := focusMapping[t.App.GetFocus()]; ok {
-				t.App.SetFocus(focusMap.prev)
+				t.setFocus(focusMap.prev)
 			}
 			return nil // to avoid default Backtab behaviour for the primitive
 		}
