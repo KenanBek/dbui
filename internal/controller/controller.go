@@ -15,6 +15,7 @@ var (
 
 	ErrUnsupportedDatabaseType = errors.New("database type not supported")
 	ErrAliasDoesNotExists      = errors.New("alias does not exists")
+	ErrIncorrectDefaultAlias   = errors.New("incorrect default database alias")
 )
 
 type Controller struct {
@@ -64,7 +65,11 @@ func New(appConfig internal.AppConfig) (c *Controller, err error) {
 
 	var defaultDSC internal.DataSourceConfig
 	if appConfig.Default() != "" {
-		defaultDSC = c.dataSourceConfigs[appConfig.Default()]
+		var ok bool
+		defaultDSC, ok = c.dataSourceConfigs[appConfig.Default()]
+		if !ok {
+			return nil, ErrIncorrectDefaultAlias
+		}
 	} else {
 		// pick the first one
 		for _, dsc := range c.dataSourceConfigs {
