@@ -14,6 +14,10 @@ test:
 mock:
 	go generate ./...
 
+.PHONY: lint
+lint:
+	golangci-lint run
+
 # Db
 
 .PHONY: demodbs

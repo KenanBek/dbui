@@ -59,12 +59,6 @@ type TUI struct {
 	FooterText   *tview.TextView
 }
 
-func (tui *TUI) newPrimitive(text string) tview.Primitive {
-	return tview.NewFrame(nil).
-		SetBorders(0, 0, 0, 0, 0, 0).
-		AddText(text, true, tview.AlignCenter, tcell.ColorWhite)
-}
-
 func (tui *TUI) resetMessage() {
 	tui.queueUpdateDraw(func() {
 		tui.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
@@ -205,12 +199,6 @@ func (tui *TUI) setFocus(p tview.Primitive) {
 	tui.queueUpdateDraw(func() {
 		tui.App.SetFocus(p)
 	})
-}
-
-func (tui *TUI) queueUpdate(f func()) {
-	go func() {
-		tui.App.QueueUpdate(f)
-	}()
 }
 
 func (tui *TUI) queueUpdateDraw(f func()) {
