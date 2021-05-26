@@ -5,59 +5,59 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (t *MyTUI) setupKeyboard() {
+func (tui *TUI) setupKeyboard() {
 	focusMapping := map[tview.Primitive]struct{ next, prev tview.Primitive }{
-		t.Sources:      {t.Schemas, t.QueryInput},
-		t.Schemas:      {t.Tables, t.Sources},
-		t.Tables:       {t.PreviewTable, t.Schemas},
-		t.PreviewTable: {t.QueryInput, t.Tables},
-		t.QueryInput:   {t.Sources, t.PreviewTable},
+		tui.Sources:      {tui.Schemas, tui.QueryInput},
+		tui.Schemas:      {tui.Tables, tui.Sources},
+		tui.Tables:       {tui.PreviewTable, tui.Schemas},
+		tui.PreviewTable: {tui.QueryInput, tui.Tables},
+		tui.QueryInput:   {tui.Sources, tui.PreviewTable},
 	}
 
-	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	tui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case KeyMapping[KeySourcesOp]:
-			t.App.SetFocus(t.Sources)
+			tui.App.SetFocus(tui.Sources)
 		case KeyMapping[KeySchemasOp]:
-			t.setFocus(t.Schemas)
+			tui.setFocus(tui.Schemas)
 		case KeyMapping[KeyTablesOp]:
-			t.setFocus(t.Tables)
+			tui.setFocus(tui.Tables)
 		case KeyMapping[KeyPreviewOp]:
-			t.setFocus(t.PreviewTable)
+			tui.setFocus(tui.PreviewTable)
 		case KeyMapping[KeyQueryOp]:
-			t.setFocus(t.QueryInput)
+			tui.setFocus(tui.QueryInput)
 		case tcell.KeyCtrlR:
-			t.LoadData()
+			tui.LoadData()
 		case tcell.KeyCtrlF:
-			t.toggleFocusMode()
+			tui.toggleFocusMode()
 		case tcell.KeyEscape:
-			if t.focusMode {
-				t.toggleFocusMode()
+			if tui.focusMode {
+				tui.toggleFocusMode()
 			}
 
 		/* Configuration for Tab & Backtab keys */
 
 		// on Tab set focus to the next element
 		case tcell.KeyTab:
-			if focusMap, ok := focusMapping[t.App.GetFocus()]; ok {
-				t.setFocus(focusMap.next)
+			if focusMap, ok := focusMapping[tui.App.GetFocus()]; ok {
+				tui.setFocus(focusMap.next)
 			}
 			return nil // to avoid default Tab behaviour for the primitive
 		// on Backtab set focus to the prev element
 		case tcell.KeyBacktab:
-			if focusMap, ok := focusMapping[t.App.GetFocus()]; ok {
-				t.setFocus(focusMap.prev)
+			if focusMap, ok := focusMapping[tui.App.GetFocus()]; ok {
+				tui.setFocus(focusMap.prev)
 			}
 			return nil // to avoid default Backtab behaviour for the primitive
 		}
 		return event
 	})
-	t.Tables.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	tui.Tables.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'e':
-			t.describeSelectedTable()
+			tui.describeSelectedTable()
 		case 'p':
-			t.previewSelectedTable()
+			tui.previewSelectedTable()
 		}
 		return event
 	})

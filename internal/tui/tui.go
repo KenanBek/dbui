@@ -37,10 +37,10 @@ var (
 	TitleTablesView  = fmt.Sprintf("Tables [ %s ]", tcell.KeyNames[KeyMapping[KeyTablesOp]])
 	TitlePreviewView = fmt.Sprintf("Preview [ %s ]", tcell.KeyNames[KeyMapping[KeyPreviewOp]])
 	TitleQueryView   = fmt.Sprintf("Query [ %s ]", tcell.KeyNames[KeyMapping[KeyQueryOp]])
-	TitleFooter      = "Navigate [ Tab / Shift-Tab ] · Focus [ Ctrl-F ] · Exit [ Ctrl-C ]"
+	TitleFooter      = "Navigate [ Tab / Shift-Tab ] · Focus [ Ctrl-F ] · Exit [ Ctrl-C ] \n Tables specific: Describe [ e ] · Preview [ p ]"
 )
 
-type MyTUI struct {
+type TUI struct {
 	// Internals
 	ac internal.AppConfig
 	dc internal.DataController
@@ -59,42 +59,42 @@ type MyTUI struct {
 	FooterText   *tview.TextView
 }
 
-func (t *MyTUI) newPrimitive(text string) tview.Primitive {
+func (tui *TUI) newPrimitive(text string) tview.Primitive {
 	return tview.NewFrame(nil).
 		SetBorders(0, 0, 0, 0, 0, 0).
 		AddText(text, true, tview.AlignCenter, tcell.ColorWhite)
 }
 
-func (t *MyTUI) resetMessage() {
-	t.queueUpdateDraw(func() {
-		t.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
+func (tui *TUI) resetMessage() {
+	tui.queueUpdateDraw(func() {
+		tui.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
 	})
 }
 
-func (t *MyTUI) showMessage(msg string) {
-	t.queueUpdateDraw(func() {
-		t.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
+func (tui *TUI) showMessage(msg string) {
+	tui.queueUpdateDraw(func() {
+		tui.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
 	})
-	go time.AfterFunc(3*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, tui.resetMessage)
 }
 
-func (t *MyTUI) showWarning(msg string) {
-	t.queueUpdateDraw(func() {
-		t.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
+func (tui *TUI) showWarning(msg string) {
+	tui.queueUpdateDraw(func() {
+		tui.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
 	})
-	go time.AfterFunc(3*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, tui.resetMessage)
 }
 
-func (t *MyTUI) showError(err error) {
-	t.queueUpdateDraw(func() {
-		t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
+func (tui *TUI) showError(err error) {
+	tui.queueUpdateDraw(func() {
+		tui.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
 	})
-	go time.AfterFunc(3*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, tui.resetMessage)
 }
 
-func (t *MyTUI) showData(label string, data [][]*string) {
-	t.queueUpdateDraw(func() {
-		t.PreviewTable.Clear()
+func (tui *TUI) showData(label string, data [][]*string) {
+	tui.queueUpdateDraw(func() {
+		tui.PreviewTable.Clear()
 
 		if len(data) == 0 {
 			return
@@ -112,115 +112,115 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 					cellColor = tcell.ColorYellow
 				}
 
-				t.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+				tui.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
 			}
 		}
-		t.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
-		t.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
+		tui.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
+		tui.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
 	})
 }
 
-func (t *MyTUI) toggleFocusMode() {
-	if t.focusMode {
-		t.queueUpdateDraw(func() {
-			t.Grid.SetRows(0, 2).SetColumns(40, 0)
+func (tui *TUI) toggleFocusMode() {
+	if tui.focusMode {
+		tui.queueUpdateDraw(func() {
+			tui.Grid.SetRows(0, 2).SetColumns(40, 0)
 		})
 	} else {
-		t.queueUpdateDraw(func() {
-			t.Grid.SetRows(0, 2).SetColumns(1, 0)
+		tui.queueUpdateDraw(func() {
+			tui.Grid.SetRows(0, 2).SetColumns(1, 0)
 		})
 	}
-	t.focusMode = !t.focusMode
+	tui.focusMode = !tui.focusMode
 }
 
-func (t *MyTUI) getSelectedSchema() (schema string, err error) {
+func (tui *TUI) getSelectedSchema() (schema string, err error) {
 	defer func() {
 		if recover() != nil {
 			err = errors.New("no database to select")
 		}
 	}()
-	schema, _ = t.Schemas.GetItemText(t.Schemas.GetCurrentItem())
+	schema, _ = tui.Schemas.GetItemText(tui.Schemas.GetCurrentItem())
 
 	return
 }
 
-func (t *MyTUI) getSelectedTable() (table string, err error) {
+func (tui *TUI) getSelectedTable() (table string, err error) {
 	defer func() {
 		if recover() != nil {
 			err = errors.New("no table to select")
 		}
 	}()
-	table, _ = t.Tables.GetItemText(t.Tables.GetCurrentItem())
+	table, _ = tui.Tables.GetItemText(tui.Tables.GetCurrentItem())
 
 	return
 }
 
-func (t *MyTUI) previewSelectedTable() {
-	schema, err := t.getSelectedSchema()
+func (tui *TUI) previewSelectedTable() {
+	schema, err := tui.getSelectedSchema()
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	table, err := t.getSelectedTable()
+	table, err := tui.getSelectedTable()
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	data, err := t.dc.Current().PreviewTable(schema, table)
+	data, err := tui.dc.Current().PreviewTable(schema, table)
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	t.showData(fmt.Sprintf("preview %s", table), data)
-	t.showMessage(fmt.Sprintf("PreviewTable \"%s\" table executed succesfully!", table))
+	tui.showData(fmt.Sprintf("preview %s", table), data)
+	tui.showMessage(fmt.Sprintf("PreviewTable \"%s\" table executed succesfully!", table))
 }
 
-func (t *MyTUI) describeSelectedTable() {
-	schema, err := t.getSelectedSchema()
+func (tui *TUI) describeSelectedTable() {
+	schema, err := tui.getSelectedSchema()
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	table, err := t.getSelectedTable()
+	table, err := tui.getSelectedTable()
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	data, err := t.dc.Current().DescribeTable(schema, table)
+	data, err := tui.dc.Current().DescribeTable(schema, table)
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	t.showData(fmt.Sprintf("describe %s", table), data)
-	t.showMessage(fmt.Sprintf("Describe \"%s\" table executed succesfully!", table))
+	tui.showData(fmt.Sprintf("describe %s", table), data)
+	tui.showMessage(fmt.Sprintf("Describe \"%s\" table executed succesfully!", table))
 }
 
-func (t *MyTUI) setFocus(p tview.Primitive) {
-	t.queueUpdateDraw(func() {
-		t.App.SetFocus(p)
+func (tui *TUI) setFocus(p tview.Primitive) {
+	tui.queueUpdateDraw(func() {
+		tui.App.SetFocus(p)
 	})
 }
 
-func (t *MyTUI) queueUpdate(f func()) {
+func (tui *TUI) queueUpdate(f func()) {
 	go func() {
-		t.App.QueueUpdate(f)
+		tui.App.QueueUpdate(f)
 	}()
 }
 
-func (t *MyTUI) queueUpdateDraw(f func()) {
+func (tui *TUI) queueUpdateDraw(f func()) {
 	go func() {
-		t.App.QueueUpdateDraw(f)
+		tui.App.QueueUpdateDraw(f)
 	}()
 }
 
-func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *MyTUI {
-	t := MyTUI{ac: appConfig, dc: dataController}
+func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *TUI {
+	t := TUI{ac: appConfig, dc: dataController}
 	t.App = tview.NewApplication()
 
 	// View elements
@@ -275,18 +275,18 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 	return &t
 }
 
-func (t *MyTUI) Start() error {
-	return t.App.SetRoot(t.Grid, true).EnableMouse(true).Run()
+func (tui *TUI) Start() error {
+	return tui.App.SetRoot(tui.Grid, true).EnableMouse(true).Run()
 }
 
-func (t *MyTUI) LoadData() {
-	t.Tables.Clear()
-	t.PreviewTable.Clear().SetTitle(TitlePreviewView)
-	t.Schemas.Clear()
+func (tui *TUI) LoadData() {
+	tui.Tables.Clear()
+	tui.PreviewTable.Clear().SetTitle(TitlePreviewView)
+	tui.Schemas.Clear()
 
-	schemas, err := t.dc.Current().ListSchemas()
+	schemas, err := tui.dc.Current().ListSchemas()
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
@@ -294,23 +294,23 @@ func (t *MyTUI) LoadData() {
 	if len(schemas) > 0 {
 		firstSchema = schemas[0]
 	} else {
-		t.showWarning("no schema to select")
+		tui.showWarning("no schema to select")
 		return
 	}
 
-	tables, err := t.dc.Current().ListTables(firstSchema)
+	tables, err := tui.dc.Current().ListTables(firstSchema)
 	if err != nil {
-		t.showError(err)
+		tui.showError(err)
 		return
 	}
 
-	t.queueUpdateDraw(func() {
+	tui.queueUpdateDraw(func() {
 		for _, table := range tables {
-			t.Tables.AddItem(table, "", 0, nil)
+			tui.Tables.AddItem(table, "", 0, nil)
 		}
 		for _, schema := range schemas {
-			t.Schemas.AddItem(schema, "", 0, nil)
+			tui.Schemas.AddItem(schema, "", 0, nil)
 		}
-		t.App.SetFocus(t.Tables)
+		tui.App.SetFocus(tui.Tables)
 	})
 }
