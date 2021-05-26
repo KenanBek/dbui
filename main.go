@@ -14,18 +14,23 @@ import (
 )
 
 func main() {
-	var connDSN string
-	var connType string
-	flag.StringVar(&connDSN, "dsn", "", "data source name")
-	flag.StringVar(&connType, "type", "", "data source type, used together with -dsn")
+	var (
+		fConfFile string
+		fConnDSN  string
+		fConnType string
+	)
+
+	flag.StringVar(&fConfFile, "f", "", "custom configuration file")
+	flag.StringVar(&fConnDSN, "dsn", "", "data source name")
+	flag.StringVar(&fConnType, "type", "", "data source type, used together with -dsn")
 	flag.Parse()
 
 	var appConfig *config.AppConfig
 	var err error
 	var customDSNMode = false
 
-	if connDSN != "" {
-		if connType == "" {
+	if fConnDSN != "" {
+		if fConnType == "" {
 			fmt.Println("-dsn and -type flags must be used together")
 			time.Sleep(2 * time.Second)
 		} else {
@@ -33,29 +38,37 @@ func main() {
 				DataSourcesProp: []config.DataSourceConfig{},
 				DefaultProp:     "custom",
 			}
-			appConfig.DataSourcesProp = append(appConfig.DataSourcesProp, config.DataSourceConfig{AliasProp: "custom", TypeProp: connType, DSNProp: connDSN})
+			appConfig.DataSourcesProp = append(appConfig.DataSourcesProp, config.DataSourceConfig{AliasProp: "custom", TypeProp: fConnType, DSNProp: fConnDSN})
 			customDSNMode = true
 		}
 	}
 
 	// TODO: Split global app configuration from connection strings.
 	if !customDSNMode {
-		confPath := "dbui.yaml"
-		if _, err = os.Stat(confPath); err != nil {
-			var userDir string
-			userDir, err = os.UserHomeDir()
-
-			if err != nil {
-				fmt.Println(err)
+		var confPath string
+		if fConfFile != "" {
+			if _, err = os.Stat(fConfFile); err != nil {
+				fmt.Printf("configuration file `%s` does not exists\n", fConfFile)
 				os.Exit(1)
 			}
-
-			confPath = path.Join(userDir, "dbui.yaml")
+			confPath = fConfFile
+		} else {
+			confPath = "dbui.yaml"
 			if _, err = os.Stat(confPath); err != nil {
-				fmt.Println(confPath)
-				fmt.Println("there is no `dbui.yaml` file in the current nor user directory")
-				fmt.Println("create one or use `-dsn` and `-type` args")
-				os.Exit(1)
+				var userDir string
+				userDir, err = os.UserHomeDir()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+
+				confPath = path.Join(userDir, "dbui.yaml")
+				if _, err = os.Stat(confPath); err != nil {
+					fmt.Println(confPath)
+					fmt.Println("there is no `dbui.yaml` file in the current nor user directory")
+					fmt.Println("create one or use `-dsn` and `-type` args")
+					os.Exit(1)
+				}
 			}
 		}
 
