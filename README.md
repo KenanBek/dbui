@@ -1,4 +1,4 @@
-# dbui
+# 🗄 dbui
 
 `dbui` is the terminal user interface and CLI for database connections.
 
@@ -41,6 +41,21 @@ It provides features like,
 - A critical amount of tests.
 - If you query a single connection a lot, it will result in an `Error 1040: To many connections`
   error. [Working on a fix](https://github.com/KenanBek/dbui/tree/fix-deadlock).
+
+## Table of Contents
+
+- [Usage](#usage)
+    - [Install](#install)
+        - [Brew](#option-1-brew)
+        - [Go Get](#option-2-go-get)
+        - [Source Code](#option-3-source-code-demo-databases)
+    - [Configuration](#configuration)
+        - [Configuration Order](#summary-of-configuration-order)
+    - [Keyboard Layout](#default-keyboard-layout)
+        - [Focus Hot Keys](#focus-hot-keys)
+        - [Special](#special)
+        - [Tables Specific](#table-specific)
+- [Contribution](#contribution)
 
 ## Usage
 
