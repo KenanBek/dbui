@@ -12,9 +12,11 @@ type dataSource struct {
 }
 
 func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
-	data = [][]*string{}
+	tx, err := d.db.Begin()
+	if err != nil {
+		return
+	}
 
-	tx, _ := d.db.Begin()
 	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
 	if err != nil {
 		return
@@ -24,10 +26,13 @@ func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
 	if err != nil {
 		return
 	}
+
 	cols, err := rows.Columns()
 	if err != nil {
 		return
 	}
+
+	data = [][]*string{}
 
 	var colsNames []*string
 	for _, col := range cols {
@@ -50,6 +55,7 @@ func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
 
 		data = append(data, columns)
 	}
+
 	return
 }
 
@@ -71,13 +77,12 @@ func (d *dataSource) Ping() error {
 }
 
 func (d *dataSource) ListSchemas() (schemas []string, err error) {
-	schemas = []string{}
 	res, err := d.db.Query("SHOW DATABASES")
-
 	if err != nil {
 		return
 	}
 
+	schemas = []string{}
 	for res.Next() {
 		var dbName string
 		err = res.Scan(&dbName)
@@ -90,20 +95,22 @@ func (d *dataSource) ListSchemas() (schemas []string, err error) {
 }
 
 func (d *dataSource) ListTables(schema string) (tables []string, err error) {
-	tables = []string{}
+	tx, err := d.db.Begin()
+	if err != nil {
+		return
+	}
 
-	tx, _ := d.db.Begin()
 	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
 	if err != nil {
 		return
 	}
 
 	res, err := tx.Query("SHOW TABLES")
-
 	if err != nil {
 		return
 	}
 
+	tables = []string{}
 	for res.Next() {
 		var tableName string
 		err = res.Scan(&tableName)

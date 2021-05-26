@@ -14,16 +14,17 @@ type dataSource struct {
 }
 
 func (d *dataSource) query(query string) (data [][]*string, err error) {
-	data = [][]*string{}
-
 	rows, err := d.db.Query(query)
 	if err != nil {
 		return
 	}
+
 	cols, err := rows.Columns()
 	if err != nil {
 		return
 	}
+
+	data = [][]*string{}
 
 	var colsNames []*string
 	for _, col := range cols {
@@ -46,6 +47,7 @@ func (d *dataSource) query(query string) (data [][]*string, err error) {
 
 		data = append(data, columns)
 	}
+
 	return
 }
 
@@ -67,13 +69,12 @@ func (d *dataSource) Ping() error {
 }
 
 func (d *dataSource) ListSchemas() (schemas []string, err error) {
-	schemas = []string{}
 	res, err := d.db.Query("SELECT datname FROM pg_database WHERE datistemplate = false")
-
 	if err != nil {
 		return
 	}
 
+	schemas = []string{}
 	for res.Next() {
 		var dbName string
 		err = res.Scan(&dbName)
@@ -86,15 +87,13 @@ func (d *dataSource) ListSchemas() (schemas []string, err error) {
 }
 
 func (d *dataSource) ListTables(schema string) (tables []string, err error) {
-	tables = []string{}
-
 	queryStr := fmt.Sprintf("SELECT table_name FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_type='BASE TABLE' AND t.table_catalog='%s' ORDER BY table_name;", schema)
 	res, err := d.db.Query(queryStr)
-
 	if err != nil {
 		return
 	}
 
+	tables = []string{}
 	for res.Next() {
 		var tableName string
 		err = res.Scan(&tableName)
