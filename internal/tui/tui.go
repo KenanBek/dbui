@@ -4,6 +4,7 @@ import (
 	"dbui/internal"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -74,21 +75,21 @@ func (t *MyTUI) showMessage(msg string) {
 	t.queueUpdateDraw(func() {
 		t.FooterText.SetText(msg).SetTextColor(tcell.ColorGreen)
 	})
-	// go time.AfterFunc(2*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showWarning(msg string) {
 	t.queueUpdateDraw(func() {
 		t.FooterText.SetText(msg).SetTextColor(tcell.ColorYellow)
 	})
-	// go time.AfterFunc(2*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showError(err error) {
 	t.queueUpdateDraw(func() {
 		t.FooterText.SetText(err.Error()).SetTextColor(tcell.ColorRed)
 	})
-	// go time.AfterFunc(3*time.Second, t.resetMessage)
+	go time.AfterFunc(3*time.Second, t.resetMessage)
 }
 
 func (t *MyTUI) showData(label string, data [][]*string) {
@@ -122,7 +123,7 @@ func (t *MyTUI) showData(label string, data [][]*string) {
 func (t *MyTUI) toggleFocusMode() {
 	if t.focusMode {
 		t.queueUpdateDraw(func() {
-			t.Grid.SetRows(0, 2).SetColumns(50, 0)
+			t.Grid.SetRows(0, 2).SetColumns(40, 0)
 		})
 	} else {
 		t.queueUpdateDraw(func() {
@@ -253,7 +254,7 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 		AddItem(t.QueryInput, 1, 0, 1, 1, 0, 0, false)
 	t.Grid = tview.NewGrid().
 		SetRows(0, 2).
-		SetColumns(50, 0).
+		SetColumns(40, 0).
 		SetBorders(false).
 		AddItem(navigate, 0, 0, 1, 1, 0, 0, true).
 		AddItem(previewAndQuery, 0, 1, 1, 1, 0, 0, false).

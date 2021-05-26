@@ -73,5 +73,10 @@ func main() {
 	}
 
 	t := tui.NewMyTUI(appConfig, ctrl)
-	_ = t.Start()
+	err = t.Start()
+	if err != nil {
+		// TODO: print stack trace for unexpected errors.
+		fmt.Printf("failed to start: %v\n", err)
+		os.Exit(1)
+	}
 }
