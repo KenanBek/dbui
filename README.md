@@ -2,6 +2,8 @@
 
 `dbui` is the terminal user interface and CLI for database connections.
 
+![dbui screenshot](docs/screenshot1.png "DBUI: CLI for MySQL and PostgreSQL databases")
+
 It provides features like,
 
 - Connect to multiple data sources and instances.
@@ -33,6 +35,12 @@ It provides features like,
 - 🚧 Under development, expect bugs, errors, and unexpected crashes.
 - 🐞 Bug and error reports are very appreciated.
 - 📣 I highly recommend to check for periodic updates.
+
+##### Known Issues
+
+- A critical amount of tests.
+- If you query a single connection a lot, it will result in an `Error 1040: To many connections`
+  error. [Working on a fix](https://github.com/KenanBek/dbui/tree/fix-deadlock).
 
 ## Usage
 
