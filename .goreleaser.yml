@@ -1,0 +1,58 @@
+project_name: dbui
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+builds:
+  - goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - "386"
+    goarm:
+      - "6"
+    main: ./main.go
+    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    binary: dbui
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}'
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+signs:
+  - cmd: gpg
+    args:
+      - --output
+      - $signature
+      - --detach-sig
+      - $artifact
+    signature: ${artifact}.sig
+    artifacts: none
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+release:
+  draft: true
+brews:
+  - tap:
+      owner: KenanBek
+      name: dbui
+    description: "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
+    homepage: "https://github.com/kenanbek/dbui"
+    folder: Formula
+    install: bin.install "dbui"
+    test: |
+      system "#{bin/dbui}"
