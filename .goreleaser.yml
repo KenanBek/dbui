@@ -2,7 +2,6 @@ project_name: dbui
 before:
   hooks:
     - go mod tidy
-    - go generate ./...
 builds:
   - goos:
       - linux
