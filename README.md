@@ -42,6 +42,47 @@ It provides features like,
 - ❗️If you query a single connection a lot, it will result in an `Error 1040: To many connections`
   error. [Working on a fix](https://github.com/KenanBek/dbui/tree/fix-deadlock).
 
+## Demo
+
+### Step 1. Install
+
+```shell script
+brew tap kenanbek/dbui https://github.com/kenanbek/dbui
+brew install dbui
+```
+
+Other [installation options](#install).
+
+### Step 2. Run demo databases
+
+```shell script
+docker run -d --name dbui-mysql-demo -p 3316:3306 -e MYSQL_ROOT_PASSWORD=demo
+docker run -d --name dbui-postgresql-demo -p 5432:5432 ghusta/postgres-world-db:2.5
+```
+
+### Step 3. Create `dbui.tml` configuration file
+
+Create `dbui.yml` file in the current folder with the following content:
+
+```shell script
+dataSources:
+  - alias: employees
+    type: mysql
+    dsn: "root:demo@(localhost:3316)/employees"
+  - alias: world-db
+    type: postgresql
+    dsn: "user=world password=world123 host=localhost port=5432 dbname=world-db sslmode=disable"
+defaut: employees
+```
+
+More about [configuration files](#configuration).
+
+### Step 4. Start `dbui`
+
+```shell script
+dbui
+```
+
 ## Table of Contents
 
 - [Usage](#usage)
@@ -63,20 +104,20 @@ It provides features like,
 
 #### Option 1: Brew
 
-```shell
+```shell script
 brew tap kenanbek/dbui https://github.com/kenanbek/dbui
 brew install dbui
 ```
 
 #### Option 2: Go Get
 
-```shell
+```shell script
 go get github.com/kenanbek/dbui
 ```
 
 #### Option 3: Source Code (+demo databases)
 
-```shell
+```shell script
 git clone https://github.com/KenanBek/dbui.git
 cd dbui
 make demodbs # runs docker containers with mysql and postgresql demo dbs
@@ -87,7 +128,7 @@ make demodbs/destroy
 
 Copy configuration and run:
 
-```shell
+```shell script
 touch dbui.yml # check below for the content
 make run
 ```
