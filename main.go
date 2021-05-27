@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	version, commit, date string
+	version, date string
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 		fConnType string
 	)
 
-	fmt.Printf("starting DBUI %s \n commit=%s date=%s \n", version, commit, date)
+	fmt.Printf("starting DBUI v%s (%s) \n", version, date)
 
 	flag.StringVar(&fConfFile, "f", "", "custom configuration file")
 	flag.StringVar(&fConnDSN, "dsn", "", "data source name")
@@ -71,8 +71,7 @@ func main() {
 
 				confPath = path.Join(userDir, "dbui.yml")
 				if _, err = os.Stat(confPath); err != nil {
-					fmt.Println(confPath)
-					fmt.Println("there is no `dbui.yml` file in the current nor user directory")
+					fmt.Printf("there is no `dbui.yml` file in the current (%s) nor user directory (%s)\n", "./dbui.yml", confPath)
 					fmt.Println("create one or use `-dsn` and `-type` args")
 					os.Exit(1)
 				}
