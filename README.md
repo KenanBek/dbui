@@ -60,7 +60,7 @@ docker run -d --name dbui-mysql-demo -p 3316:3306 -e MYSQL_ROOT_PASSWORD=demo
 docker run -d --name dbui-postgresql-demo -p 5432:5432 ghusta/postgres-world-db:2.5
 ```
 
-### Step 3. Create `dbui.tml` configuration file
+### Step 3. Create dbui.yml configuration file
 
 Create `dbui.yml` file in the current folder with the following content:
 
@@ -77,7 +77,7 @@ defaut: employees
 
 More about [configuration files](#configuration).
 
-### Step 4. Start `dbui`
+### Step 4. Start dbui
 
 ```shell script
 dbui
