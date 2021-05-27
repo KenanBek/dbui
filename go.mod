@@ -1,4 +1,4 @@
-module dbui
+module github.com/kenanbek/dbui
 
 go 1.15
 

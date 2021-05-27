@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"dbui/internal"
 	"reflect"
 	"testing"
+
+	"github.com/kenanbek/dbui/internal"
 
 	"github.com/golang/mock/gomock"
 

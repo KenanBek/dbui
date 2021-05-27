@@ -5,9 +5,10 @@
 package controller
 
 import (
-	internal "dbui/internal"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+	internal "github.com/kenanbek/dbui/internal"
 )
 
 // MockAppConfig is a mock of AppConfig interface

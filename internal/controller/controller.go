@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"dbui/internal"
-	"dbui/internal/mysql"
-	"dbui/internal/postgresql"
 	"errors"
+
+	"github.com/kenanbek/dbui/internal"
+	"github.com/kenanbek/dbui/internal/mysql"
+	"github.com/kenanbek/dbui/internal/postgresql"
 )
 
 var (

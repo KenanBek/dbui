@@ -1,8 +1,9 @@
 package config
 
 import (
-	"dbui/internal"
 	"io/ioutil"
+
+	"github.com/kenanbek/dbui/internal"
 
 	"gopkg.in/yaml.v2"
 )

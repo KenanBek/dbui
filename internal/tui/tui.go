@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"dbui/internal"
+	"github.com/kenanbek/dbui/internal"
 	"errors"
 	"fmt"
 	"time"
