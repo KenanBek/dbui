@@ -65,7 +65,7 @@ It provides features like,
 
 ```shell
 brew tap kenanbek/dbui https://github.com/KenanBek/dbui
-brew isntall dbui
+brew install dbui
 ```
 
 #### Option 2: Go Get
