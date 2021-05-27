@@ -51,7 +51,7 @@ brew tap kenanbek/dbui https://github.com/kenanbek/dbui
 brew install dbui
 ```
 
-Other [installation options](#install).
+Other [installation options](#install). If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL. Check [this][wiki-brew-untap] for more information.
 
 ### Step 2. Run demo databases
 
@@ -108,6 +108,8 @@ dbui
 brew tap kenanbek/dbui https://github.com/kenanbek/dbui
 brew install dbui
 ```
+
+If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL. Check [this][wiki-brew-untap] for more information.
 
 #### Option 2: Go Get
 
@@ -232,3 +234,5 @@ For test purposes, I use these Docker-based demo databases:
 
 - [genschsa/mysql-employees](https://hub.docker.com/r/genschsa/mysql-employees)
 - [ghusta/docker-postgres-world-db](https://github.com/ghusta/docker-postgres-world-db)
+
+[wiki-brew-untap]: https://github.com/KenanBek/dbui/wiki/Brew-Untap
