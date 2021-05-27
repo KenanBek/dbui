@@ -24,7 +24,7 @@ func main() {
 		fConnType string
 	)
 
-	fmt.Printf("Starting dbui version=%s commit=%s date=%s", version, commit, date)
+	fmt.Printf("starting DBUI %s \n commit=%s date=%s \n", version, commit, date)
 
 	flag.StringVar(&fConfFile, "f", "", "custom configuration file")
 	flag.StringVar(&fConnDSN, "dsn", "", "data source name")
