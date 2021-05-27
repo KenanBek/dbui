@@ -202,6 +202,12 @@ func (tui *TUI) setFocus(p tview.Primitive) {
 	})
 }
 
+func (tui *TUI) queueUpdate(f func()) {
+	go func() {
+		tui.App.QueueUpdate(f)
+	}()
+}
+
 func (tui *TUI) queueUpdateDraw(f func()) {
 	go func() {
 		tui.App.QueueUpdateDraw(f)
@@ -249,6 +255,30 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 		AddItem(previewAndQuery, 0, 1, 1, 1, 0, 0, false).
 		AddItem(t.FooterText, 1, 0, 1, 2, 0, 0, false)
 
+	t.App.SetAfterDrawFunc(func(screen tcell.Screen) {
+		t.queueUpdate(func() {
+			p := t.App.GetFocus()
+
+			t.Sources.SetBorderColor(tcell.ColorWhite)
+			t.Schemas.SetBorderColor(tcell.ColorWhite)
+			t.Tables.SetBorderColor(tcell.ColorWhite)
+			t.PreviewTable.SetBorderColor(tcell.ColorWhite)
+			t.QueryInput.SetBorderColor(tcell.ColorWhite)
+
+			switch p {
+			case t.Sources:
+				t.Sources.SetBorderColor(tcell.ColorGreen)
+			case t.Schemas:
+				t.Schemas.SetBorderColor(tcell.ColorGreen)
+			case t.Tables:
+				t.Tables.SetBorderColor(tcell.ColorGreen)
+			case t.PreviewTable:
+				t.PreviewTable.SetBorderColor(tcell.ColorGreen)
+			case t.QueryInput:
+				t.QueryInput.SetBorderColor(tcell.ColorGreen)
+			}
+		})
+	})
 	t.setupKeyboard()
 
 	// TODO: Use-case when config was updated. Reload data sources.
@@ -300,6 +330,6 @@ func (tui *TUI) LoadData() {
 		for _, schema := range schemas {
 			tui.Schemas.AddItem(schema, "", 0, nil)
 		}
-		tui.App.SetFocus(tui.Tables)
+		tui.App.SetFocus(tui.Sources)
 	})
 }
