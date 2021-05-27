@@ -219,3 +219,16 @@ The code and its sub-packages include various form of documentation: code commen
 familiar with them to know more about internal code structure. This section includes references to additional READMEs.
 
 - [About `Controller` package - an abstraction over multiple data sources](internal/controller/README.md)
+
+## References
+
+This project inspired by [k9s](https://github.com/derailed/k9s), [lazydocker](https://github.com/jesseduffield/lazydocker), and [htop](https://github.com/htop-dev/htop).
+
+I use `tview` terminal UI for the interactive user interface:
+
+- [tview](https://github.com/rivo/tview)
+
+For test purposes, I use these Docker-based demo databases:
+
+- [genschsa/mysql-employees](https://hub.docker.com/r/genschsa/mysql-employees)
+- [ghusta/docker-postgres-world-db](https://github.com/ghusta/docker-postgres-world-db)
