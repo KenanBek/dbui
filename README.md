@@ -64,14 +64,14 @@ It provides features like,
 #### Option 1: Brew
 
 ```shell
-brew tap kenanbek/dbui https://github.com/KenanBek/dbui
+brew tap kenanbek/dbui https://github.com/kenanbek/dbui
 brew install dbui
 ```
 
 #### Option 2: Go Get
 
 ```shell
-go get github.com/KenanBek/dbui
+go get github.com/kenanbek/dbui
 ```
 
 #### Option 3: Source Code (+demo databases)
