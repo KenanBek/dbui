@@ -64,6 +64,7 @@ It provides features like,
 #### Option 1: Brew
 
 ```shell
+brew tap kenanbek/dbui https://github.com/KenanBek/dbui
 brew isntall dbui
 ```
 
