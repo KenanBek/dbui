@@ -57,7 +57,7 @@ Other [installation options](#install).
 
 ```shell script
 docker run -d --name dbui-mysql-demo -p 3316:3306 -e MYSQL_ROOT_PASSWORD=demo genschsa/mysql-employees
-docker run -d --name dbui-postgresql-demo -p 5432:5432 ghusta/postgres-world-db:2.5
+docker run -d --name dbui-postgresql-demo -p 5432:5432 ghusta/postgres-world-db:2.4-alpine
 ```
 
 ### Step 3. Create dbui.yml configuration file
