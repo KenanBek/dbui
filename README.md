@@ -87,7 +87,7 @@ make demodbs/destroy
 Copy configuration and run:
 
 ```shell
-touch dbui.yaml # check below for the content
+touch dbui.yml # check below for the content
 make run
 ```
 
@@ -95,7 +95,7 @@ Copy/paste the configuration provided below for demo databases.
 
 ### Configuration
 
-By default `dbui` uses configuration file (`dbui.yaml`).
+By default `dbui` uses configuration file (`dbui.yml`).
 
 ```yaml
 dataSources:
@@ -128,11 +128,11 @@ $ dbui -dsn "codekn:codekn@(localhost:3306)/codekn_omni" -type mysql
 ```shell
 # when
 $ dbui
-# read from `./dbui.yaml` if not then from `~/dbui.yaml`
+# read from `./dbui.yml` if not then from `~/dbui.yml`
 
 # when
-$ dbui -f /my/custom/dir/mydbui.yaml
-# read from custom directory `/my/custom/dir/mydbui.yaml`
+$ dbui -f /my/custom/dir/mydbui.yml
+# read from custom directory `/my/custom/dir/mydbui.yml`
 
 # when
 $ dbui -dsn "<connection-string>" -type mysql

@@ -59,7 +59,7 @@ func main() {
 			}
 			confPath = fConfFile
 		} else {
-			confPath = "dbui.yaml"
+			confPath = "dbui.yml"
 			if _, err = os.Stat(confPath); err != nil {
 				var userDir string
 				userDir, err = os.UserHomeDir()
@@ -68,10 +68,10 @@ func main() {
 					os.Exit(1)
 				}
 
-				confPath = path.Join(userDir, "dbui.yaml")
+				confPath = path.Join(userDir, "dbui.yml")
 				if _, err = os.Stat(confPath); err != nil {
 					fmt.Println(confPath)
-					fmt.Println("there is no `dbui.yaml` file in the current nor user directory")
+					fmt.Println("there is no `dbui.yml` file in the current nor user directory")
 					fmt.Println("create one or use `-dsn` and `-type` args")
 					os.Exit(1)
 				}

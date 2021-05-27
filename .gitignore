@@ -12,7 +12,7 @@
 *.dylib
 
 # Project specific
-dbui.yaml
+dbui.yml
 demodata
 
 # Test binary, built with `go test -c`
