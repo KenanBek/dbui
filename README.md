@@ -17,6 +17,8 @@ It provides features like,
     - full-screen and focus modes,
     - mouse support.
 
+Runs on Mac, Linux, and [Windows](https://kenanbek.gitbook.io/dbui/additional/windows).
+
 #### Currently supported databases
 
 - MySQL
