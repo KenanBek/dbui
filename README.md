@@ -226,7 +226,7 @@ familiar with them to know more about internal code structure. This section incl
 
 DBUI is a work in progress, and any feedback/contributions are more than welcome.
 
-The backlog can be viewed on [GitHub Issues](https://github.com/kenanbek/issues) page.
+The backlog can be viewed on [GitHub Issues](https://github.com/kenanbek/dbui/issues) page.
 
 ## References
 
