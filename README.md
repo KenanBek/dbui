@@ -224,6 +224,10 @@ familiar with them to know more about internal code structure. This section incl
 
 - [About `Controller` package - an abstraction over multiple data sources](internal/controller/README.md)
 
+DBUI is a work in progress, and any feedback/contributions are more than welcome.
+
+The backlog can be viewed on [GitHub Issues](https://github.com/kenanbek/issues) page.
+
 ## References
 
 This project inspired by [k9s](https://github.com/derailed/k9s), [lazydocker](https://github.com/jesseduffield/lazydocker), and [htop](https://github.com/htop-dev/htop).
