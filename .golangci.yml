@@ -1,0 +1,19 @@
+timeout: 3m
+
+linters:
+  disable-all: true
+  enable:
+    - golint
+    - gofmt
+    - bodyclose
+    - gosimple
+    - prealloc
+    - unused
+    - deadcode
+    - govet
+    - varcheck
+    - ineffassign
+    - whitespace
+
+issues:
+  exclude-use-default: false
