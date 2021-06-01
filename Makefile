@@ -8,7 +8,7 @@ run:
 
 .PHONY: test
 test:
-	go test ./... -race -cover -tags=component
+	go test ./... -v -race -cover
 
 .PHONY: mock
 mock:
