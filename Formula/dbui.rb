@@ -5,16 +5,21 @@
 class Dbui < Formula
   desc "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
   homepage "https://github.com/kenanbek/dbui"
-  version "0.1.3"
+  version "0.1.4"
   bottle :unneeded
 
-  if OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/KenanBek/dbui/releases/download/v0.1.3/dbui_Darwin_x86_64.tar.gz"
-    sha256 "171a0ac5791ee01e5d7d33d3f037bf1ff91eacf456ccd13fd946afd014d44769"
+  on_macos do
+    if Hardware::CPU.intel?
+      url "https://github.com/KenanBek/dbui/releases/download/v0.1.4/dbui_Darwin_x86_64.tar.gz"
+      sha256 "6c5baf56e439fe2b0b1311d0c8bc20db1be54341ff81f36119421ed4fa80210f"
+    end
   end
-  if OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/KenanBek/dbui/releases/download/v0.1.3/dbui_Linux_x86_64.tar.gz"
-    sha256 "0958575930b61efc2febdb0f1dd1f2c1a3cbe284b8de317dbd1e8b7015370f8b"
+
+  on_linux do
+    if Hardware::CPU.intel?
+      url "https://github.com/KenanBek/dbui/releases/download/v0.1.4/dbui_Linux_x86_64.tar.gz"
+      sha256 "46cb016c569495f21fe24041d66285921acf9a03c79e3d983a8cac8dfe1f85f8"
+    end
   end
 
   def install
