@@ -234,10 +234,10 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 	t.QueryInput.SetTitle(TitleQueryView).SetBorder(true)
 
 	// Input handlers
-	t.Tables.SetSelectedFunc(t.TableSelected)
-	t.Schemas.SetSelectedFunc(t.SchemaSelected)
-	t.Sources.SetSelectedFunc(t.SourceSelected)
-	t.QueryInput.SetDoneFunc(t.QueryExecuted)
+	t.Tables.SetSelectedFunc(t.tableSelected)
+	t.Schemas.SetSelectedFunc(t.schemaSelected)
+	t.Sources.SetSelectedFunc(t.sourceSelected)
+	t.QueryInput.SetDoneFunc(t.queryExecuted)
 
 	// Layout
 	navigate := tview.NewGrid().SetRows(0, 0, 0).
@@ -255,30 +255,7 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 		AddItem(previewAndQuery, 0, 1, 1, 1, 0, 0, false).
 		AddItem(t.FooterText, 1, 0, 1, 2, 0, 0, false)
 
-	t.App.SetAfterDrawFunc(func(screen tcell.Screen) {
-		t.queueUpdate(func() {
-			p := t.App.GetFocus()
-
-			t.Sources.SetBorderColor(tcell.ColorWhite)
-			t.Schemas.SetBorderColor(tcell.ColorWhite)
-			t.Tables.SetBorderColor(tcell.ColorWhite)
-			t.PreviewTable.SetBorderColor(tcell.ColorWhite)
-			t.QueryInput.SetBorderColor(tcell.ColorWhite)
-
-			switch p {
-			case t.Sources:
-				t.Sources.SetBorderColor(tcell.ColorGreen)
-			case t.Schemas:
-				t.Schemas.SetBorderColor(tcell.ColorGreen)
-			case t.Tables:
-				t.Tables.SetBorderColor(tcell.ColorGreen)
-			case t.PreviewTable:
-				t.PreviewTable.SetBorderColor(tcell.ColorGreen)
-			case t.QueryInput:
-				t.QueryInput.SetBorderColor(tcell.ColorGreen)
-			}
-		})
-	})
+	t.App.SetAfterDrawFunc(t.setAfterDrawFunc)
 	t.setupKeyboard()
 
 	// TODO: Use-case when config was updated. Reload data sources.

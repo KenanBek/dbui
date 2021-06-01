@@ -6,7 +6,32 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func (tui *TUI) SourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
+func (tui *TUI) setAfterDrawFunc(screen tcell.Screen) {
+	tui.queueUpdateDraw(func() {
+		p := tui.App.GetFocus()
+
+		tui.Sources.SetBorderColor(tcell.ColorWhite)
+		tui.Schemas.SetBorderColor(tcell.ColorWhite)
+		tui.Tables.SetBorderColor(tcell.ColorWhite)
+		tui.PreviewTable.SetBorderColor(tcell.ColorWhite)
+		tui.QueryInput.SetBorderColor(tcell.ColorWhite)
+
+		switch p {
+		case tui.Sources:
+			tui.Sources.SetBorderColor(tcell.ColorGreen)
+		case tui.Schemas:
+			tui.Schemas.SetBorderColor(tcell.ColorGreen)
+		case tui.Tables:
+			tui.Tables.SetBorderColor(tcell.ColorGreen)
+		case tui.PreviewTable:
+			tui.PreviewTable.SetBorderColor(tcell.ColorGreen)
+		case tui.QueryInput:
+			tui.QueryInput.SetBorderColor(tcell.ColorGreen)
+		}
+	})
+}
+
+func (tui *TUI) sourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	err := tui.dc.Switch(mainText)
 	if err != nil {
 		tui.showError(err)
@@ -23,7 +48,7 @@ func (tui *TUI) SourceSelected(index int, mainText string, secondaryText string,
 	tui.setFocus(tui.Schemas)
 }
 
-func (tui *TUI) SchemaSelected(index int, mainText string, secondaryText string, shortcut rune) {
+func (tui *TUI) schemaSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	tui.Tables.Clear()
 
 	tables, err := tui.dc.Current().ListTables(mainText)
@@ -40,7 +65,7 @@ func (tui *TUI) SchemaSelected(index int, mainText string, secondaryText string,
 	tui.setFocus(tui.Tables)
 }
 
-func (tui *TUI) TableSelected(index int, mainText string, secondaryText string, shortcut rune) {
+func (tui *TUI) tableSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	data, err := tui.dc.Current().PreviewTable(secondaryText, mainText)
 	if err != nil {
 		tui.showError(err)
@@ -51,7 +76,7 @@ func (tui *TUI) TableSelected(index int, mainText string, secondaryText string, 
 	tui.setFocus(tui.PreviewTable)
 }
 
-func (tui *TUI) QueryExecuted(key tcell.Key) {
+func (tui *TUI) queryExecuted(key tcell.Key) {
 	schema, err := tui.getSelectedSchema()
 
 	if err != nil {
