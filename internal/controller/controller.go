@@ -14,11 +14,18 @@ var (
 	// or there was an unexpected exception during the switch.
 	ErrEmptyConnection = errors.New("current connection is empty")
 
+	// ErrUnsupportedDatabaseType indicates that in user-provided configuration
+	// Type field does not correspond to any supported database type.
 	ErrUnsupportedDatabaseType = errors.New("database type not supported")
-	ErrAliasDoesNotExists      = errors.New("alias does not exists")
-	ErrIncorrectDefaultAlias   = errors.New("incorrect default database alias")
+
+	// ErrAliasDoesNotExists indicates that the used alias does not exist in the set of data source connections.
+	ErrAliasDoesNotExists = errors.New("alias does not exists")
+
+	// ErrIncorrectDefaultAlias indicates that the user-provided default alias has no match in the set of provided data source connections.
+	ErrIncorrectDefaultAlias = errors.New("incorrect default database alias")
 )
 
+// Controller implements internal.DataController interface. It provides Switch, List, and Current methods used over a set of data source configurations.
 type Controller struct {
 	appConfig         internal.AppConfig
 	dataSourceConfigs map[string]internal.DataSourceConfig
@@ -53,6 +60,7 @@ func (c *Controller) getConnectionOrConnect(conn internal.DataSourceConfig) (int
 	}
 }
 
+// New returns an instance of Controller initiated by the provided configuration.
 func New(appConfig internal.AppConfig) (c *Controller, err error) {
 	if appConfig == nil || len(appConfig.DataSourceConfigs()) == 0 {
 		return nil, ErrEmptyConnection
@@ -83,6 +91,7 @@ func New(appConfig internal.AppConfig) (c *Controller, err error) {
 	return
 }
 
+// List exported.
 func (c *Controller) List() (result [][]string) {
 	result = [][]string{}
 
@@ -94,6 +103,7 @@ func (c *Controller) List() (result [][]string) {
 	return
 }
 
+// Switch exported.
 func (c *Controller) Switch(alias string) (err error) {
 	if _, ok := c.dataSourceConfigs[alias]; !ok {
 		return ErrAliasDoesNotExists
@@ -103,6 +113,7 @@ func (c *Controller) Switch(alias string) (err error) {
 	return
 }
 
+// Current exported.
 func (c *Controller) Current() internal.DataSource {
 	return c.current
 }

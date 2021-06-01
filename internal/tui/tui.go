@@ -17,14 +17,20 @@ type (
 )
 
 const (
+	// KeySourcesOp is the operation corresponding to the activation of the Sources view.
 	KeySourcesOp KeyOp = iota
+	// KeySchemasOp is the operation corresponding to the activation of the Schemas view.
 	KeySchemasOp
+	// KeyTablesOp is the operation corresponding to the activation of the Tables view.
 	KeyTablesOp
+	// KeyPreviewOp is the operation corresponding to the activation of the Preview view.
 	KeyPreviewOp
+	// KeyQueryOp is the operation corresponding to the activation of the Query view.
 	KeyQueryOp
 )
 
 var (
+	// KeyMapping maps keyboard operations to their hotkeys. In the future, this part can be customized by the user configuration.
 	KeyMapping = map[KeyOp]tcell.Key{
 		KeySourcesOp: tcell.KeyCtrlA,
 		KeySchemasOp: tcell.KeyCtrlS,
@@ -33,14 +39,22 @@ var (
 		KeyQueryOp:   tcell.KeyCtrlQ,
 	}
 
+	// TitleSourcesView is the title for Sources view.
 	TitleSourcesView = fmt.Sprintf("Sources [ %s ]", tcell.KeyNames[KeyMapping[KeySourcesOp]])
+	// TitleSchemasView is the title for Schemas view.
 	TitleSchemasView = fmt.Sprintf("Schemas [ %s ]", tcell.KeyNames[KeyMapping[KeySchemasOp]])
-	TitleTablesView  = fmt.Sprintf("Tables [ %s ]", tcell.KeyNames[KeyMapping[KeyTablesOp]])
+	// TitleTablesView is the title for Tables view.
+	TitleTablesView = fmt.Sprintf("Tables [ %s ]", tcell.KeyNames[KeyMapping[KeyTablesOp]])
+	// TitlePreviewView is the title for Preview view.
 	TitlePreviewView = fmt.Sprintf("Preview [ %s ]", tcell.KeyNames[KeyMapping[KeyPreviewOp]])
-	TitleQueryView   = fmt.Sprintf("Query [ %s ]", tcell.KeyNames[KeyMapping[KeyQueryOp]])
-	TitleFooter      = "Navigate [ Tab / Shift-Tab ] · Focus [ Ctrl-F ] · Exit [ Ctrl-C ] \n Tables specific: Describe [ e ] · Preview [ p ]"
+	// TitleQueryView is the title for Query view.
+	TitleQueryView = fmt.Sprintf("Query [ %s ]", tcell.KeyNames[KeyMapping[KeyQueryOp]])
+	// TitleFooterView is the title for Footer view.
+	TitleFooterView = "Navigate [ Tab / Shift-Tab ] · Focus [ Ctrl-F ] · Exit [ Ctrl-C ] \n Tables specific: Describe [ e ] · Preview [ p ]"
 )
 
+// TUI implement terminal user interface features.
+// It also provides easy-to-use, easy-to-access abstraction over underlying tview components.
 type TUI struct {
 	// Internals
 	ac internal.AppConfig
@@ -62,7 +76,7 @@ type TUI struct {
 
 func (tui *TUI) resetMessage() {
 	tui.queueUpdateDraw(func() {
-		tui.FooterText.SetText(TitleFooter).SetTextColor(tcell.ColorGray)
+		tui.FooterText.SetText(TitleFooterView).SetTextColor(tcell.ColorGray)
 	})
 }
 
@@ -202,6 +216,7 @@ func (tui *TUI) setFocus(p tview.Primitive) {
 	})
 }
 
+// nolint
 func (tui *TUI) queueUpdate(f func()) {
 	go func() {
 		tui.App.QueueUpdate(f)
@@ -214,7 +229,8 @@ func (tui *TUI) queueUpdateDraw(f func()) {
 	}()
 }
 
-func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataController) *TUI {
+// NewTUI configures and returns an instance of terminal user interface.
+func NewTUI(appConfig internal.AppConfig, dataController internal.DataController) *TUI {
 	t := TUI{ac: appConfig, dc: dataController}
 	t.App = tview.NewApplication()
 
@@ -224,7 +240,7 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 	t.Tables = tview.NewList().ShowSecondaryText(false)
 	t.PreviewTable = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
 	t.QueryInput = tview.NewInputField()
-	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooter).SetTextColor(tcell.ColorGray)
+	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooterView).SetTextColor(tcell.ColorGray)
 
 	// Configure appearance
 	t.Sources.SetTitle(TitleSourcesView).SetBorder(true)
@@ -271,10 +287,12 @@ func NewMyTUI(appConfig internal.AppConfig, dataController internal.DataControll
 	return &t
 }
 
+// Start starts terminal user interface application.
 func (tui *TUI) Start() error {
 	return tui.App.SetRoot(tui.Grid, true).EnableMouse(true).Run()
 }
 
+// LoadData prepares user interface components based on their data sources.
 func (tui *TUI) LoadData() {
 	tui.Tables.Clear()
 	tui.PreviewTable.Clear().SetTitle(TitlePreviewView)

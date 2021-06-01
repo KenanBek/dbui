@@ -1,25 +1,39 @@
-//go:generate mockgen -source=dbui.go -destination=./controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
 package internal
 
+//go:generate mockgen -source=dbui.go -destination=./controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
+
 type (
+	// AppConfig sets interface for the app level configuration.
 	AppConfig interface {
+		// DataSourceConfigs returns map of aliases to DataSourceConfig.
 		DataSourceConfigs() map[string]DataSourceConfig
+		// Default returns alias of the default DataSourceConfig, which must be as a default connection on application startup.
 		Default() string
 	}
+	// DataSourceConfig sets interface for defining connection params to the data source.
 	DataSourceConfig interface {
+		// Alias returns used defined alias for the data source.
 		Alias() string
+		// Type defines the type of the data source (e.g. mysql, postgresql, etc.).
 		Type() string
+		// DSN returns the data source name, which the selected data source driver uses to establish a connection.
 		DSN() string
 	}
 
 	// DataSource defines an interface for specific data source implementations. All supported
 	// data sources like MySQL, PostgreSQL, etc., must implement this interface.
 	DataSource interface {
+		// Ping checks the underlying data source connection.
 		Ping() error
+		// ListSchemas returns existing schemas in the data source.
 		ListSchemas() ([]string, error)
+		// ListTables returns list of tables for the given schema.
 		ListTables(schema string) ([]string, error)
-		PreviewTable(schema, table string) ([][]*string, error) // PreviewTable returns preview data by schema and table name.
+		// PreviewTable returns top N records from the selected schema.table.
+		PreviewTable(schema, table string) ([][]*string, error)
+		// DescribeTable returns tables structural information.
 		DescribeTable(schema, table string) ([][]*string, error)
+		// Query executes the provided SQL query in the selected schema.
 		Query(schema, query string) ([][]*string, error)
 	}
 
