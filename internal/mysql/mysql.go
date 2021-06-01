@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // dataSource implements internal.DataSource interface for MySQL storage.

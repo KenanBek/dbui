@@ -10,8 +10,6 @@ import (
 	"github.com/kenanbek/dbui/internal/config"
 	"github.com/kenanbek/dbui/internal/controller"
 	"github.com/kenanbek/dbui/internal/tui"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
