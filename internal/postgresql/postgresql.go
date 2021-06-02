@@ -24,15 +24,14 @@ func (d *DataSource) query(query string) (data [][]*string, err error) {
 		return
 	}
 
-	data = [][]*string{}
-
-	colsNames := make([]*string, len(cols))
+	var colsNames []*string
 	for _, col := range cols {
 		colName := col
 		colsNames = append(colsNames, &colName)
 	}
-	data = append(data, colsNames)
 
+	data = [][]*string{}
+	data = append(data, colsNames)
 	for rows.Next() {
 		columns := make([]*string, len(cols))
 		columnPointers := make([]interface{}, len(cols))
