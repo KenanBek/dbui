@@ -42,16 +42,53 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-
 release:
+  github:
+    owner: KenanBek
+    name: dbui
   draft: true
+  prerelease: auto
+  discussion_category_name: General
+  header: |
+    ## Features
+
+    List of newly introduced features:
+
+    - Item 1
+    - Item 2
+
+    ## Bug fixes
+
+    List of fixed issues:
+
+    - Item 1
+    - Item 2
+  footer: |
+    ## Thanks!
+
+    Read more on our documentation page: https://kenanbek.gitbook.io/dbui/
 brews:
   - tap:
       owner: KenanBek
       name: dbui
+    name: dbui
     description: "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
     homepage: "https://github.com/kenanbek/dbui"
+    license: "Apache 2.0"
     folder: Formula
+    commit_author:
+      name: KenanBek
+      email: mail@kenanbek.me
     install: bin.install "dbui"
     test: |
       system "#{bin/dbui}"
+nfpms:
+  - maintainer: KenanBek
+    description: "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
+    homepage: "https://github.com/kenanbek/dbui"
+    license: "Apache 2.0"
+    formats:
+      - deb
+      - rpm
+    replacements:
+      darwin: Darwin
