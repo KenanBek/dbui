@@ -3,6 +3,7 @@ timeout: 3m
 linters:
   disable-all: true
   enable:
+    - goimports
     - golint
     - gofmt
     - bodyclose
@@ -14,6 +15,7 @@ linters:
     - varcheck
     - ineffassign
     - whitespace
+    - godot
 
 issues:
   exclude-use-default: false
