@@ -71,8 +71,10 @@ brews:
   - tap:
       owner: KenanBek
       name: dbui
-    homepage: "https://github.com/kenanbek/dbui"
+    name: dbui
     description: "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
+    homepage: "https://github.com/kenanbek/dbui"
+    license: "Apache 2.0"
     folder: Formula
     commit_author:
       name: KenanBek
