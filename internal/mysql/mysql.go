@@ -34,7 +34,7 @@ func (d *DataSource) query(schema, query string) (data [][]*string, err error) {
 		return
 	}
 
-	var colsNames []*string
+	var colsNames []*string // nolint
 	for _, col := range cols {
 		colName := col
 		colsNames = append(colsNames, &colName)

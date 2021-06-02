@@ -4,7 +4,7 @@ linters:
   disable-all: true
   enable:
     - goimports
-    - golint
+    - revive
     - gofmt
     - bodyclose
     - gosimple
