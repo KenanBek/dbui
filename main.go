@@ -89,7 +89,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	t := tui.NewMyTUI(appConfig, ctrl)
+	t := tui.NewTUI(appConfig, ctrl)
 	err = t.Start()
 	if err != nil {
 		// TODO: print stack trace for unexpected errors.

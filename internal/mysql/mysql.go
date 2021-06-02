@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // import mysql driver.
 )
 
-// dataSource implements internal.DataSource interface for MySQL storage.
-type dataSource struct {
+// DataSource implements internal.DataSource interface for MySQL storage.
+type DataSource struct {
 	db *sql.DB
 }
 
-func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
+func (d *DataSource) query(schema, query string) (data [][]*string, err error) {
 	tx, err := d.db.Begin()
 	if err != nil {
 		return
@@ -36,7 +36,7 @@ func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
 
 	data = [][]*string{}
 
-	var colsNames []*string
+	colsNames := make([]*string, len(cols))
 	for _, col := range cols {
 		colName := col
 		colsNames = append(colsNames, &colName)
@@ -61,7 +61,9 @@ func (d *dataSource) query(schema, query string) (data [][]*string, err error) {
 	return
 }
 
-func New(dsn string) (*dataSource, error) {
+// New configures a new connection to the MySQL data source
+// and returns an instance of it which implements internal.DataSource interface.
+func New(dsn string) (*DataSource, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
@@ -71,14 +73,16 @@ func New(dsn string) (*dataSource, error) {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	return &dataSource{db: db}, nil
+	return &DataSource{db: db}, nil
 }
 
-func (d *dataSource) Ping() error {
+// Ping exported.
+func (d *DataSource) Ping() error {
 	return d.db.Ping()
 }
 
-func (d *dataSource) ListSchemas() (schemas []string, err error) {
+// ListSchemas exported.
+func (d *DataSource) ListSchemas() (schemas []string, err error) {
 	res, err := d.db.Query("SHOW DATABASES")
 	if err != nil {
 		return
@@ -96,7 +100,8 @@ func (d *dataSource) ListSchemas() (schemas []string, err error) {
 	return
 }
 
-func (d *dataSource) ListTables(schema string) (tables []string, err error) {
+// ListTables exported.
+func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 	tx, err := d.db.Begin()
 	if err != nil {
 		return
@@ -124,14 +129,17 @@ func (d *dataSource) ListTables(schema string) (tables []string, err error) {
 	return
 }
 
-func (d *dataSource) PreviewTable(schema string, table string) ([][]*string, error) {
+// PreviewTable exported.
+func (d *DataSource) PreviewTable(schema string, table string) ([][]*string, error) {
 	return d.query(schema, fmt.Sprintf("SELECT * FROM %s LIMIT 10", table))
 }
 
-func (d *dataSource) DescribeTable(schema string, table string) ([][]*string, error) {
+// DescribeTable exported.
+func (d *DataSource) DescribeTable(schema string, table string) ([][]*string, error) {
 	return d.query(schema, fmt.Sprintf("DESCRIBE %s", table))
 }
 
-func (d *dataSource) Query(schema, query string) ([][]*string, error) {
+// Query exported.
+func (d *DataSource) Query(schema, query string) ([][]*string, error) {
 	return d.query(schema, query)
 }
