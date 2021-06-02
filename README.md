@@ -19,6 +19,12 @@ It provides features like,
 
 Runs on Mac, Linux, and [Windows](https://kenanbek.gitbook.io/dbui/additional/windows).
 
+### Linux
+
+`dbui` is available as downloadable binaries from the [releases](https://github.com/kenanbek/dbui/releases/latest) page.
+Download the `.deb` or `.rpm` from the [releases](https://github.com/kenanbek/dbui/releases/latest) page and install
+with `sudo dpkg -i` and `sudo rpm -i` respectively.
+
 #### Currently supported databases
 
 - MySQL
@@ -53,7 +59,8 @@ brew tap kenanbek/dbui https://github.com/kenanbek/dbui
 brew install dbui
 ```
 
-Other [installation options](#install). If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL. Check [this][wiki-brew-untap] for more information.
+Other [installation options](#install). If you have installed the first versions of `dbui`, you might need to un-tap the
+old cask URL. Check [this][wiki-brew-untap] for more information.
 
 ### Step 2. Run demo databases
 
@@ -111,7 +118,8 @@ brew tap kenanbek/dbui https://github.com/kenanbek/dbui
 brew install dbui
 ```
 
-If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL. Check [this][wiki-brew-untap] for more information.
+If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL.
+Check [this][wiki-brew-untap] for more information.
 
 #### Option 2: Go Get
 
@@ -230,7 +238,8 @@ The backlog can be viewed on [GitHub Issues](https://github.com/kenanbek/dbui/is
 
 ## References
 
-This project inspired by [k9s](https://github.com/derailed/k9s), [lazydocker](https://github.com/jesseduffield/lazydocker), and [htop](https://github.com/htop-dev/htop).
+This project inspired by [k9s](https://github.com/derailed/k9s)
+, [lazydocker](https://github.com/jesseduffield/lazydocker), and [htop](https://github.com/htop-dev/htop).
 
 I use `tview` terminal UI for the interactive user interface:
 
