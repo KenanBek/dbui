@@ -19,7 +19,7 @@ It provides features like,
 
 Runs on Mac, Linux, and [Windows](https://kenanbek.gitbook.io/dbui/additional/windows).
 
-### Linux
+##### Linux
 
 `dbui` is available as downloadable binaries from the [releases](https://github.com/kenanbek/dbui/releases/latest) page.
 Download the `.deb` or `.rpm` from the [releases](https://github.com/kenanbek/dbui/releases/latest) page and install
