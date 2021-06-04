@@ -1,5 +1,7 @@
 package internal
 
+import "log"
+
 //go:generate mockgen -source=dbui.go -destination=./controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
 
 type (
@@ -54,4 +56,30 @@ type (
 		// Current returns currently selected data source.
 		Current() DataSource
 	}
+
+	// Closable is the interface that wraps Close method.
+	Closable interface {
+		Close() error
+	}
+
+	// Committable is the interface that wraps Commit method.
+	Committable interface {
+		Commit() error
+	}
 )
+
+// CloseOrLog tries to close and logs if it fails.
+func CloseOrLog(c Closable) {
+	err := c.Close()
+	if err != nil {
+		log.Printf("failed to close: %v\n", err)
+	}
+}
+
+// CommitOrLog tries to commit and logs if it fails.
+func CommitOrLog(c Committable) {
+	err := c.Commit()
+	if err != nil {
+		log.Printf("failed to commit: %v\n", err)
+	}
+}
