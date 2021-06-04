@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // import mysql driver.
+	"github.com/kenanbek/dbui/internal"
 )
 
 // DataSource implements internal.DataSource interface for MySQL storage.
@@ -15,16 +16,19 @@ type DataSource struct {
 
 func (d *DataSource) query(schema, query string) (data [][]*string, err error) {
 	tx, err := d.db.Begin()
+	defer internal.CommitOrLog(tx)
 	if err != nil {
 		return
 	}
 
-	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
+	res, err := tx.Query(fmt.Sprintf("USE %s", schema))
+	defer internal.CloseOrLog(res)
 	if err != nil {
 		return
 	}
 
 	rows, err := tx.Query(query)
+	defer internal.CloseOrLog(rows)
 	if err != nil {
 		return
 	}
@@ -83,6 +87,7 @@ func (d *DataSource) Ping() error {
 // ListSchemas exported.
 func (d *DataSource) ListSchemas() (schemas []string, err error) {
 	res, err := d.db.Query("SHOW DATABASES")
+	defer internal.CloseOrLog(res)
 	if err != nil {
 		return
 	}
@@ -102,24 +107,27 @@ func (d *DataSource) ListSchemas() (schemas []string, err error) {
 // ListTables exported.
 func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 	tx, err := d.db.Begin()
+	defer internal.CommitOrLog(tx)
 	if err != nil {
 		return
 	}
 
-	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
+	useRes, err := tx.Query(fmt.Sprintf("USE %s", schema))
+	defer internal.CloseOrLog(useRes)
 	if err != nil {
 		return
 	}
 
-	res, err := tx.Query("SHOW TABLES")
+	resShow, err := tx.Query("SHOW TABLES")
+	defer internal.CloseOrLog(resShow)
 	if err != nil {
 		return
 	}
 
 	tables = []string{}
-	for res.Next() {
+	for resShow.Next() {
 		var tableName string
-		err = res.Scan(&tableName)
+		err = resShow.Scan(&tableName)
 		if err == nil {
 			tables = append(tables, tableName)
 		}

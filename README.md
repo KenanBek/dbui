@@ -41,14 +41,15 @@ with `sudo dpkg -i` and `sudo rpm -i` respectively.
 #### Current status
 
 - 🚧 Under development, expect bugs, errors, and unexpected crashes.
-- 🐞 Bug and error reports are very appreciated.
+- 🐞 Bug and error report very well appreciated.
 - 📣 I highly recommend to check for periodic updates.
 
 ##### Known Issues
 
 - ❗️Critically low amount of tests.
-- ❗️If you query a single connection a lot, it will result in an `Error 1040: To many connections`
-  error. [Working on a fix](https://github.com/KenanBek/dbui/tree/fix-deadlock).
+- ⚠️Having multiple connections and many queries triggers a high CPU load. Now
+  when [this PR](https://github.com/KenanBek/dbui/pull/28) merged, as a next step, I will work on profiling the
+  application.
 
 ## Demo
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/kenanbek/dbui/internal"
 	_ "github.com/lib/pq" // import pq driver for PostgreSQL.
 )
 
@@ -15,6 +16,7 @@ type DataSource struct {
 
 func (d *DataSource) query(query string) (data [][]*string, err error) {
 	rows, err := d.db.Query(query)
+	defer internal.CloseOrLog(rows)
 	if err != nil {
 		return
 	}
@@ -73,6 +75,7 @@ func (d *DataSource) Ping() error {
 // ListSchemas exported.
 func (d *DataSource) ListSchemas() (schemas []string, err error) {
 	res, err := d.db.Query("SELECT datname FROM pg_database WHERE datistemplate = false")
+	defer internal.CloseOrLog(res)
 	if err != nil {
 		return
 	}
@@ -93,6 +96,7 @@ func (d *DataSource) ListSchemas() (schemas []string, err error) {
 func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 	queryStr := fmt.Sprintf("SELECT table_name FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_type='BASE TABLE' AND t.table_catalog='%s' ORDER BY table_name;", schema)
 	res, err := d.db.Query(queryStr)
+	defer internal.CloseOrLog(res)
 	if err != nil {
 		return
 	}
