@@ -3,10 +3,33 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // import mysql driver.
 )
+
+type closable interface {
+	Close() error
+}
+
+type committable interface {
+	Commit() error
+}
+
+func closeOrLog(c closable) {
+	err := c.Close()
+	if err != nil {
+		log.Printf("failed to close: %v\n", err)
+	}
+}
+
+func commitOrLog(c committable) {
+	err := c.Commit()
+	if err != nil {
+		log.Printf("failed to close: %v\n", err)
+	}
+}
 
 // DataSource implements internal.DataSource interface for MySQL storage.
 type DataSource struct {
@@ -15,16 +38,19 @@ type DataSource struct {
 
 func (d *DataSource) query(schema, query string) (data [][]*string, err error) {
 	tx, err := d.db.Begin()
+	defer commitOrLog(tx)
 	if err != nil {
 		return
 	}
 
-	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
+	res, err := tx.Query(fmt.Sprintf("USE %s", schema))
+	defer closeOrLog(res)
 	if err != nil {
 		return
 	}
 
 	rows, err := tx.Query(query)
+	defer closeOrLog(rows)
 	if err != nil {
 		return
 	}
@@ -83,6 +109,7 @@ func (d *DataSource) Ping() error {
 // ListSchemas exported.
 func (d *DataSource) ListSchemas() (schemas []string, err error) {
 	res, err := d.db.Query("SHOW DATABASES")
+	defer closeOrLog(res)
 	if err != nil {
 		return
 	}
@@ -102,24 +129,27 @@ func (d *DataSource) ListSchemas() (schemas []string, err error) {
 // ListTables exported.
 func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 	tx, err := d.db.Begin()
+	defer commitOrLog(tx)
 	if err != nil {
 		return
 	}
 
-	_, err = tx.Query(fmt.Sprintf("USE %s", schema))
+	useRes, err := tx.Query(fmt.Sprintf("USE %s", schema))
+	defer closeOrLog(useRes)
 	if err != nil {
 		return
 	}
 
-	res, err := tx.Query("SHOW TABLES")
+	resShow, err := tx.Query("SHOW TABLES")
+	defer closeOrLog(resShow)
 	if err != nil {
 		return
 	}
 
 	tables = []string{}
-	for res.Next() {
+	for resShow.Next() {
 		var tableName string
-		err = res.Scan(&tableName)
+		err = resShow.Scan(&tableName)
 		if err == nil {
 			tables = append(tables, tableName)
 		}
