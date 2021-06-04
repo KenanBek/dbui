@@ -5,21 +5,21 @@
 class Dbui < Formula
   desc "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
   homepage "https://github.com/kenanbek/dbui"
-  version "0.3.0"
+  version "0.4.0"
   license "Apache 2.0"
   bottle :unneeded
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/KenanBek/dbui/releases/download/v0.3.0/dbui_Darwin_x86_64.tar.gz"
-      sha256 "de4c1dd175f105c580b2b83812cb617e147f10bf0b4e5d4dd68348cc8f6f2bb6"
+      url "https://github.com/KenanBek/dbui/releases/download/v0.4.0/dbui_Darwin_x86_64.tar.gz"
+      sha256 "8ea11c38f2a4b86d725910dcddc65146893d7befb96fa3ea2ac0fee54419cfe0"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/KenanBek/dbui/releases/download/v0.3.0/dbui_Linux_x86_64.tar.gz"
-      sha256 "28cf57da4b2e9bc41a6354761ab99dda06cb3c15dadf61ee1489f8d5831e56ec"
+      url "https://github.com/KenanBek/dbui/releases/download/v0.4.0/dbui_Linux_x86_64.tar.gz"
+      sha256 "219604d5d3cfd924196ed55d3c4d3081ef6d382843d38e3f84a5eeb5bbcfa072"
     end
   end
 
