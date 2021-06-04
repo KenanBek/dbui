@@ -13,8 +13,12 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, "employees", appConfig.Default())
 	assert.Len(t, appConfig.DataSourceConfigs(), 2)
 
-	// appConfig, err = New("testdata/corrupt-dbui.yml")
-	// assert.NotNil(t, err)
+	_, err = New("testdata/corrupt-dbui.yml")
+	assert.Error(t, err)
+	assert.Contains(t, "yaml: line 3: mapping values are not allowed in this context", err.Error())
+
+	_, err = New("testdata/ghost-dbui.yml")
+	assert.Error(t, err)
 }
 
 func TestAppConfig_DataSourceConfigs(t *testing.T) {
