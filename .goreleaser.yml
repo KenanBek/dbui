@@ -42,6 +42,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^conf:'
 release:
   github:
     owner: KenanBek
@@ -60,6 +61,11 @@ release:
     ## Bug fixes
 
     List of fixed issues:
+
+    - Item 1
+    - Item 2
+
+    ## Code changes
 
     - Item 1
     - Item 2
