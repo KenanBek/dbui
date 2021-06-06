@@ -62,7 +62,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestNew(t *testing.T) {
-	_, err := mysql.New("root:no-demo@(localhost:3131)/mysql")
+	_, err := mysql.New("some-random-text")
 	assert.Error(t, err)
 }
 
@@ -96,6 +96,7 @@ func TestDataSource_ListTables(t *testing.T) {
 	assert.Nil(t, err)
 	assert.EqualValues(t, expectedTables, tables)
 
-	_, err = db.ListTables("no-schema")
-	assert.Error(t, err)
+	tables, err = db.ListTables("no-schema")
+	assert.Nil(t, tables)
+	assert.NotNil(t, err)
 }
