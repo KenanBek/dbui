@@ -61,6 +61,11 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+func TestNew(t *testing.T) {
+	_, err := mysql.New("root:no-demo@(localhost:3131)/mysql")
+	assert.Error(t, err)
+}
+
 func TestDataSource_ListSchemas(t *testing.T) {
 	expectedSchemas := []string{
 		"information_schema",
@@ -90,4 +95,7 @@ func TestDataSource_ListTables(t *testing.T) {
 	tables, err := db.ListTables("employees")
 	assert.Nil(t, err)
 	assert.EqualValues(t, expectedTables, tables)
+
+	_, err = db.ListTables("no-schema")
+	assert.Error(t, err)
 }
