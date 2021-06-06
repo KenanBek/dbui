@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // import SQLite driver.
 )
 
 // DataSource wraps a SQLite DataSource.
@@ -71,7 +71,7 @@ func (d *DataSource) ListSchemas() ([]string, error) {
 
 // ListTables lists available tables in the database.
 func (d *DataSource) ListTables(_ string) ([]string, error) {
-	queryStr := fmt.Sprintf("SELECT name FROM sqlite_master WHERE type='table';")
+	queryStr := "SELECT name FROM sqlite_master WHERE type='table';"
 	res, err := d.db.Query(queryStr)
 	if err != nil {
 		return nil, err
