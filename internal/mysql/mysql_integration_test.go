@@ -40,7 +40,7 @@ func TestMain(m *testing.M) {
 	})
 
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
-	pool.MaxWait = time.Minute * 2
+	pool.MaxWait = time.Minute * 5
 	if err = pool.Retry(func() error {
 		db, err = mysql.New(fmt.Sprintf("root:demo@(localhost:%s)/mysql", mysqlContainer.GetPort("3306/tcp")))
 		if err != nil {
@@ -99,4 +99,15 @@ func TestDataSource_ListTables(t *testing.T) {
 	tables, err = db.ListTables("no-schema")
 	assert.Nil(t, tables)
 	assert.NotNil(t, err)
+}
+
+func TestDataSource_PreviewTable(t *testing.T) {
+	headerRow := []string{"dept_no", "dept_name"}
+	expectedPreview := [][]*string{
+		&headerRow,
+	}
+	preview, err := db.PreviewTable("employees", "departments")
+
+	assert.Nil(t, err)
+	assert.EqualValues(t, expectedPreview, preview)
 }
