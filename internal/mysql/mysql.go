@@ -16,22 +16,22 @@ type DataSource struct {
 
 func (d *DataSource) query(schema, query string) (data [][]*string, err error) {
 	tx, err := d.db.Begin()
-	defer internal.CommitOrLog(tx)
 	if err != nil {
 		return
 	}
+	defer internal.CommitOrLog(tx)
 
 	res, err := tx.Query(fmt.Sprintf("USE %s", schema))
-	defer internal.CloseOrLog(res)
 	if err != nil {
 		return
 	}
+	defer internal.CloseOrLog(res)
 
 	rows, err := tx.Query(query)
-	defer internal.CloseOrLog(rows)
 	if err != nil {
 		return
 	}
+	defer internal.CloseOrLog(rows)
 
 	cols, err := rows.Columns()
 	if err != nil {
@@ -87,10 +87,10 @@ func (d *DataSource) Ping() error {
 // ListSchemas exported.
 func (d *DataSource) ListSchemas() (schemas []string, err error) {
 	res, err := d.db.Query("SHOW DATABASES")
-	defer internal.CloseOrLog(res)
 	if err != nil {
 		return
 	}
+	defer internal.CloseOrLog(res)
 
 	schemas = []string{}
 	for res.Next() {
@@ -107,22 +107,22 @@ func (d *DataSource) ListSchemas() (schemas []string, err error) {
 // ListTables exported.
 func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 	tx, err := d.db.Begin()
-	defer internal.CommitOrLog(tx)
 	if err != nil {
 		return
 	}
+	defer internal.CommitOrLog(tx)
 
 	useRes, err := tx.Query(fmt.Sprintf("USE %s", schema))
-	defer internal.CloseOrLog(useRes)
 	if err != nil {
 		return
 	}
+	defer internal.CloseOrLog(useRes)
 
 	resShow, err := tx.Query("SHOW TABLES")
-	defer internal.CloseOrLog(resShow)
 	if err != nil {
 		return
 	}
+	defer internal.CloseOrLog(resShow)
 
 	tables = []string{}
 	for resShow.Next() {
