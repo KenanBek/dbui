@@ -50,6 +50,7 @@ func main() {
 
 	// TODO: Split global app configuration from connection strings.
 	if !customDSNMode {
+		var configExitStatus = 0
 		var confPath string
 		if fConfFile != "" {
 			if _, err = os.Stat(fConfFile); err != nil {
@@ -64,14 +65,14 @@ func main() {
 				userDir, err = os.UserHomeDir()
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(1)
+					os.Exit(configExitStatus)
 				}
 
 				confPath = path.Join(userDir, "dbui.yml")
 				if _, err = os.Stat(confPath); err != nil {
 					fmt.Printf("there is no `dbui.yml` file in the current (%s) nor user directory (%s)\n", "./dbui.yml", confPath)
 					fmt.Println("create one or use `-dsn` and `-type` args")
-					os.Exit(1)
+					os.Exit(configExitStatus)
 				}
 			}
 		}
@@ -79,7 +80,7 @@ func main() {
 		appConfig, err = config.New(confPath)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			os.Exit(configExitStatus)
 		}
 	}
 
