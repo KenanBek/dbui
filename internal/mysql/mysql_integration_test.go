@@ -133,3 +133,16 @@ func TestDataSource_ExplainTable(t *testing.T) {
 	assert.Len(t, describe, 3)
 	assert.EqualValues(t, expectedDescribe, describe)
 }
+
+func TestDataSource_Query(t *testing.T) {
+	expectedResult := [][]*string{
+		{sptr("dept_no")},
+		{sptr("d009")},
+		{sptr("d005")},
+	}
+	result, err := db.Query("employees", "select dept_no from departments limit 2")
+
+	assert.Nil(t, err)
+	assert.Len(t, result, 3)
+	assert.EqualValues(t, expectedResult, result)
+}
