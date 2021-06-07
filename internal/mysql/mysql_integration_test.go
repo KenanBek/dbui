@@ -17,7 +17,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var dsn string
 var db *mysql.DataSource
+
+func sptr(s string) *string {
+	return &s
+}
 
 func TestMain(m *testing.M) {
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
@@ -43,7 +48,8 @@ func TestMain(m *testing.M) {
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	pool.MaxWait = time.Minute * 5
 	if err = pool.Retry(func() error {
-		db, err = mysql.New(fmt.Sprintf("root:demo@(localhost:%s)/mysql", mysqlContainer.GetPort("3306/tcp")))
+		dsn = fmt.Sprintf("root:demo@(localhost:%s)/mysql", mysqlContainer.GetPort("3306/tcp"))
+		db, err = mysql.New(dsn)
 		if err != nil {
 			return err
 		}
@@ -76,7 +82,7 @@ func TestDataSource_ListSchemas(t *testing.T) {
 		"sys",
 	}
 	schemas, err := db.ListSchemas()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.EqualValues(t, expectedSchemas, schemas)
 }
 
@@ -94,16 +100,12 @@ func TestDataSource_ListTables(t *testing.T) {
 		"v_full_employees",
 	}
 	tables, err := db.ListTables("employees")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.EqualValues(t, expectedTables, tables)
 
 	tables, err = db.ListTables("no-schema")
 	assert.Nil(t, tables)
-	assert.NotNil(t, err)
-}
-
-func sptr(s string) *string {
-	return &s
+	assert.Error(t, err)
 }
 
 func TestDataSource_PreviewTable(t *testing.T) {
@@ -114,7 +116,7 @@ func TestDataSource_PreviewTable(t *testing.T) {
 	}
 	preview, err := db.PreviewTable("employees", "departments")
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, preview, 10)
 	assert.EqualValues(t, expectedPreview[0], preview[0])
 	assert.EqualValues(t, expectedPreview[1], preview[1])
@@ -129,7 +131,7 @@ func TestDataSource_ExplainTable(t *testing.T) {
 	}
 	describe, err := db.DescribeTable("employees", "departments")
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, describe, 3)
 	assert.EqualValues(t, expectedDescribe, describe)
 }
@@ -142,7 +144,7 @@ func TestDataSource_Query(t *testing.T) {
 	}
 	result, err := db.Query("employees", "select dept_no from departments limit 2")
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, result, 3)
 	assert.EqualValues(t, expectedResult, result)
 }
