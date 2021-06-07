@@ -22,6 +22,8 @@ func main() {
 		fDemo     bool
 		fConnDSN  string
 		fConnType string
+
+		appConfig *config.AppConfig
 	)
 
 	fmt.Printf("Starting DBUI v%s (%s) \n", version, date)
@@ -32,13 +34,10 @@ func main() {
 	flag.StringVar(&fConnType, "type", "", "data source type, used together with -dsn")
 	flag.Parse()
 
-	var appConfig *config.AppConfig
-	var customDSNMode = false
-
 	if fDemo {
 		appConfig = &config.AppConfig{
 			DataSourcesProp: []config.DataSourceConfig{
-				{"dummy", "dummy", "dummy"},
+				{AliasProp: "demo", TypeProp: "demo", DSNProp: "demo"},
 			},
 			DefaultProp: "dummy",
 		}
@@ -57,19 +56,18 @@ func main() {
 				DataSourcesProp: []config.DataSourceConfig{},
 				DefaultProp:     "custom",
 			}
-			appConfig.DataSourcesProp = append(appConfig.DataSourcesProp, config.DataSourceConfig{AliasProp: "custom", TypeProp: fConnType, DSNProp: fConnDSN})
-			customDSNMode = true
+			appConfig.DataSourcesProp = append(
+				appConfig.DataSourcesProp,
+				config.DataSourceConfig{AliasProp: "custom", TypeProp: fConnType, DSNProp: fConnDSN},
+			)
 
 			startApp(appConfig)
 			return
 		}
 	}
 
-	if !customDSNMode {
-		appConfig = readConfig(fConfFile)
-		startApp(appConfig)
-		return
-	}
+	appConfig = readConfig(fConfFile)
+	startApp(appConfig)
 }
 
 func startApp(appConfig *config.AppConfig) {
