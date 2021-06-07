@@ -4,16 +4,17 @@ package mysql_test
 
 import (
 	"fmt"
-	"github.com/kenanbek/dbui/internal/mysql"
-	"github.com/ory/dockertest/v3/docker"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/kenanbek/dbui/internal/mysql"
 	"github.com/ory/dockertest/v3"
+	"github.com/ory/dockertest/v3/docker"
+	"github.com/stretchr/testify/assert"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var db *mysql.DataSource
@@ -101,13 +102,34 @@ func TestDataSource_ListTables(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func sptr(s string) *string {
+	return &s
+}
+
 func TestDataSource_PreviewTable(t *testing.T) {
-	headerRow := []string{"dept_no", "dept_name"}
 	expectedPreview := [][]*string{
-		&headerRow,
+		{sptr("dept_no"), sptr("dept_name")},
+		{sptr("d009"), sptr("Customer Service")},
+		{sptr("d005"), sptr("Development")},
 	}
 	preview, err := db.PreviewTable("employees", "departments")
 
 	assert.Nil(t, err)
-	assert.EqualValues(t, expectedPreview, preview)
+	assert.Len(t, preview, 10)
+	assert.EqualValues(t, expectedPreview[0], preview[0])
+	assert.EqualValues(t, expectedPreview[1], preview[1])
+	assert.EqualValues(t, expectedPreview[2], preview[2])
+}
+
+func TestDataSource_ExplainTable(t *testing.T) {
+	expectedDescribe := [][]*string{
+		{sptr("Field"), sptr("Type"), sptr("Null"), sptr("Key"), sptr("Default"), sptr("Extra")},
+		{sptr("dept_no"), sptr("char(4)"), sptr("NO"), sptr("PRI"), nil, sptr("")},
+		{sptr("dept_name"), sptr("varchar(40)"), sptr("NO"), sptr("UNI"), nil, sptr("")},
+	}
+	describe, err := db.DescribeTable("employees", "departments")
+
+	assert.Nil(t, err)
+	assert.Len(t, describe, 3)
+	assert.EqualValues(t, expectedDescribe, describe)
 }
