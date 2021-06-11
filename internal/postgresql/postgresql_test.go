@@ -21,5 +21,4 @@ func TestDataSource_ListTables_Negative(t *testing.T) {
 
 	_, err = db2.ListTables("world-db")
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "pq: password authentication failed for user")
 }
