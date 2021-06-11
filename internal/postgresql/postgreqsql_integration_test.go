@@ -111,19 +111,21 @@ func TestDataSource_PreviewTable(t *testing.T) {
 	assert.EqualValues(t, expectedPreview[2], preview[2])
 }
 
-// func TestDataSource_ExplainTable(t *testing.T) {
-// 	expectedDescribe := [][]*string{
-// 		{sptr("Field"), sptr("Type"), sptr("Null"), sptr("Key"), sptr("Default"), sptr("Extra")},
-// 		{sptr("dept_no"), sptr("char(4)"), sptr("NO"), sptr("PRI"), nil, sptr("")},
-// 		{sptr("dept_name"), sptr("varchar(40)"), sptr("NO"), sptr("UNI"), nil, sptr("")},
-// 	}
-// 	describe, err := db.DescribeTable("employees", "departments")
-//
-// 	assert.NoError(t, err)
-// 	assert.Len(t, describe, 3)
-// 	assert.EqualValues(t, expectedDescribe, describe)
-// }
-//
+func TestDataSource_ExplainTable(t *testing.T) {
+	expectedDescribe := [][]*string{
+		{sptr("column_name"), sptr("data_type"), sptr("character_maximum_length"), sptr("column_default"), sptr("is_nullable")},
+		{sptr("country_code"), sptr("character"), sptr("3"), nil, sptr("NO")},
+		{sptr("language"), sptr("text"), nil, nil, sptr("NO")},
+		{sptr("is_official"), sptr("boolean"), nil, nil, sptr("NO")},
+		{sptr("percentage"), sptr("real"), nil, nil, sptr("NO")},
+	}
+	describe, err := db.DescribeTable("world-db", "country_language")
+
+	assert.NoError(t, err)
+	assert.Len(t, describe, 5)
+	assert.EqualValues(t, expectedDescribe, describe)
+}
+
 // func TestDataSource_Query(t *testing.T) {
 // 	expectedResult := [][]*string{
 // 		{sptr("dept_no")},
