@@ -20,10 +20,9 @@ import (
 var dsn string
 var db *postgresql.DataSource
 
-//
-// func sptr(s string) *string {
-// 	return &s
-// }
+func sptr(s string) *string {
+	return &s
+}
 
 func TestMain(m *testing.M) {
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
@@ -96,22 +95,22 @@ func TestDataSource_ListTables(t *testing.T) {
 	assert.Empty(t, tables)
 }
 
-//
-// func TestDataSource_PreviewTable(t *testing.T) {
-// 	expectedPreview := [][]*string{
-// 		{sptr("dept_no"), sptr("dept_name")},
-// 		{sptr("d009"), sptr("Customer Service")},
-// 		{sptr("d005"), sptr("Development")},
-// 	}
-// 	preview, err := db.PreviewTable("employees", "departments")
-//
-// 	assert.NoError(t, err)
-// 	assert.Len(t, preview, 10)
-// 	assert.EqualValues(t, expectedPreview[0], preview[0])
-// 	assert.EqualValues(t, expectedPreview[1], preview[1])
-// 	assert.EqualValues(t, expectedPreview[2], preview[2])
-// }
-//
+func TestDataSource_PreviewTable(t *testing.T) {
+	expectedPreview := [][]*string{
+		{sptr("country_code"), sptr("language"), sptr("is_official"), sptr("percentage")},
+		{sptr("AFG"), sptr("Pashto"), sptr("true"), sptr("52.4")},
+		{sptr("NLD"), sptr("Dutch"), sptr("true"), sptr("95.6")},
+		{sptr("ANT"), sptr("Papiamento"), sptr("true"), sptr("86.2")},
+	}
+	preview, err := db.PreviewTable("world-db", "country_language")
+
+	assert.NoError(t, err)
+	assert.Len(t, preview, 11)
+	assert.EqualValues(t, expectedPreview[0], preview[0])
+	assert.EqualValues(t, expectedPreview[1], preview[1])
+	assert.EqualValues(t, expectedPreview[2], preview[2])
+}
+
 // func TestDataSource_ExplainTable(t *testing.T) {
 // 	expectedDescribe := [][]*string{
 // 		{sptr("Field"), sptr("Type"), sptr("Null"), sptr("Key"), sptr("Default"), sptr("Extra")},
