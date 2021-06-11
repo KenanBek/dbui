@@ -126,15 +126,14 @@ func TestDataSource_ExplainTable(t *testing.T) {
 	assert.EqualValues(t, expectedDescribe, describe)
 }
 
-// func TestDataSource_Query(t *testing.T) {
-// 	expectedResult := [][]*string{
-// 		{sptr("dept_no")},
-// 		{sptr("d009")},
-// 		{sptr("d005")},
-// 	}
-// 	result, err := db.Query("employees", "select dept_no from departments limit 2")
-//
-// 	assert.NoError(t, err)
-// 	assert.Len(t, result, 3)
-// 	assert.EqualValues(t, expectedResult, result)
-// }
+func TestDataSource_Query(t *testing.T) {
+	expectedResult := [][]*string{
+		{sptr("country_code")},
+		{sptr("AFG")},
+	}
+	result, err := db.Query("world-db", "select country_code from country_language limit 1")
+
+	assert.NoError(t, err)
+	assert.Len(t, result, 2)
+	assert.EqualValues(t, expectedResult, result)
+}
