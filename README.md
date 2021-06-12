@@ -1,6 +1,12 @@
-# 🗄 dbui
+# 🗄 DBUI: Database CLI
 
-`dbui` is the terminal user interface and CLI for database connections.
+**dbui** is database CLI for MySQL and PostgreSQL. It is the terminal user interface application built
+with the [tview](https://github.com/rivo/tview).
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/kenanbek/dbui)](https://github.com/KenanBek/dbui/releases/latest)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kenanbek/dbui/Build)](https://github.com/KenanBek/dbui/actions/workflows/build.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kenanbek/dbui)](https://goreportcard.com/report/github.com/kenanbek/dbui)
+[![Codecov](https://img.shields.io/codecov/c/github/kenanbek/dbui)](https://app.codecov.io/gh/KenanBek/dbui/)
 
 ![dbui screenshot](docs/screenshot1.png "DBUI: CLI for MySQL and PostgreSQL databases")
 

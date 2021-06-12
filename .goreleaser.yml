@@ -78,7 +78,7 @@ brews:
       owner: KenanBek
       name: dbui
     name: dbui
-    description: "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
+    description: "Database CLI for MySQL and PostgreSQL. More databases to come. Terminal User Interface Application."
     homepage: "https://github.com/kenanbek/dbui"
     license: "Apache 2.0"
     folder: Formula
@@ -90,7 +90,7 @@ brews:
       system "#{bin/dbui}"
 nfpms:
   - maintainer: KenanBek
-    description: "Interactive terminal user interface and CLI for database connections. MySQL, PostgreSQL. More to come."
+    description: "Database CLI for MySQL and PostgreSQL. More databases to come. Terminal User Interface Application."
     homepage: "https://github.com/kenanbek/dbui"
     license: "Apache 2.0"
     formats:

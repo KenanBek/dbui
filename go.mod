@@ -7,6 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/mock v1.5.0
 	github.com/lib/pq v1.10.2
+	github.com/ory/dockertest/v3 v3.6.5
 	github.com/rivo/tview v0.0.0-20210427112837-09cec83b1732
 	github.com/stretchr/testify v1.7.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b

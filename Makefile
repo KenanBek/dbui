@@ -8,7 +8,7 @@ run:
 
 .PHONY: test
 test:
-	go test ./... -v -race -cover
+	go test -v -race -tags=integration ./...
 
 .PHONY: mock
 mock:
