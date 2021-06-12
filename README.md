@@ -29,7 +29,7 @@ with `sudo dpkg -i` and `sudo rpm -i` respectively.
 
 - MySQL
 - PostgreSQL
-- SQLite (soon)
+- SQLite
 
 #### What's next?
 
@@ -82,6 +82,9 @@ dataSources:
   - alias: world-db
     type: postgresql
     dsn: "user=world password=world123 host=localhost port=5432 dbname=world-db sslmode=disable"
+  - alias: chinook
+    type: sqlite
+    dsn: "internal/sqlite/testdata/chinook.db"
 defaut: employees
 ```
 

@@ -2,8 +2,11 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"os"
 
+	"github.com/kenanbek/dbui/internal"
 	_ "modernc.org/sqlite" // import SQLite driver.
 )
 
@@ -14,6 +17,15 @@ type DataSource struct {
 
 // New initializes a new SQLite Datasource.
 func New(dsn string) (*DataSource, error) {
+	info, err := os.Stat(dsn)
+	if os.IsNotExist(err) {
+		return nil, err
+	}
+
+	if info.IsDir() {
+		return nil, errors.New("it isn't a file")
+	}
+
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, err
@@ -27,6 +39,8 @@ func (d *DataSource) query(query string) (data [][]*string, err error) {
 	if err != nil {
 		return
 	}
+
+	defer internal.CloseOrLog(rows)
 
 	cols, err := rows.Columns()
 	if err != nil {
@@ -76,6 +90,8 @@ func (d *DataSource) ListTables(_ string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer internal.CloseOrLog(res)
 
 	var tables []string
 	for res.Next() {
