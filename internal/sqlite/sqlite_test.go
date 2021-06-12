@@ -7,6 +7,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_SQLiteFileNotExist(t *testing.T) {
+	ds, err := New("testdata/chinook2.db")
+
+	require.EqualError(t, err, "stat testdata/chinook2.db: no such file or directory")
+	require.Nil(t, ds)
+}
+
+func Test_SQLiteDirectory(t *testing.T) {
+	ds, err := New("testdata")
+
+	require.EqualError(t, err, `"testdata" isn't a file`)
+	require.Nil(t, ds)
+}
+
 func Test_SQLite(t *testing.T) {
 	ds, err := New("testdata/chinook.db")
 

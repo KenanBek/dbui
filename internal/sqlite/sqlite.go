@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"os"
 
@@ -23,7 +22,7 @@ func New(dsn string) (*DataSource, error) {
 	}
 
 	if info.IsDir() {
-		return nil, errors.New("it isn't a file")
+		return nil, fmt.Errorf("%q isn't a file", dsn)
 	}
 
 	db, err := sql.Open("sqlite", dsn)
