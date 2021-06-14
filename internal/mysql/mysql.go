@@ -138,7 +138,7 @@ func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 
 // PreviewTable exported.
 func (d *DataSource) PreviewTable(schema string, table string) ([][]*string, error) {
-	return d.query(schema, fmt.Sprintf("SELECT * FROM %s LIMIT 10", table))
+	return d.query(schema, fmt.Sprintf("SELECT * FROM %s LIMIT 50", table))
 }
 
 // DescribeTable exported.

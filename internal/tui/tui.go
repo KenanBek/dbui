@@ -113,18 +113,29 @@ func (tui *TUI) showData(label string, data [][]*string) {
 			for j, col := range row {
 				var cellValue string
 				var cellColor = tcell.ColorWhite
+				var notSelectable = false
 
 				if col != nil {
 					cellValue = *col
 				}
 				if i == 0 {
+					notSelectable = true
 					cellColor = tcell.ColorYellow
 				}
 
-				tui.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+				tui.PreviewTable.SetCell(
+					i, j,
+					&tview.TableCell{
+						Text:          cellValue,
+						Color:         cellColor,
+						NotSelectable: notSelectable,
+					},
+				)
 			}
 		}
 		tui.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
+		tui.PreviewTable.SetFixed(1, 1)
+		tui.PreviewTable.SetSelectable(true, false)
 		tui.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
 	})
 }
