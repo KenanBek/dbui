@@ -136,7 +136,7 @@ func (tui *TUI) showData(label string, data [][]*string) {
 		tui.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
 		tui.PreviewTable.SetFixed(1, 1)
 		tui.PreviewTable.SetSelectable(true, false)
-		tui.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
+		tui.PreviewTable.ScrollToBeginning()
 	})
 }
 
@@ -249,7 +249,7 @@ func NewTUI(appConfig internal.AppConfig, dataController internal.DataController
 	t.Sources = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
 	t.Schemas = tview.NewList().ShowSecondaryText(false)
 	t.Tables = tview.NewList().ShowSecondaryText(false)
-	t.PreviewTable = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
+	t.PreviewTable = tview.NewTable().SetSelectedStyle(tcell.Style{}.Foreground(tcell.ColorBlack).Background(tcell.ColorWhite))
 	t.QueryInput = tview.NewInputField()
 	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooterView).SetTextColor(tcell.ColorGray)
 
