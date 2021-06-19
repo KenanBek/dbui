@@ -113,19 +113,30 @@ func (tui *TUI) showData(label string, data [][]*string) {
 			for j, col := range row {
 				var cellValue string
 				var cellColor = tcell.ColorWhite
+				var notSelectable = false
 
 				if col != nil {
 					cellValue = *col
 				}
 				if i == 0 {
+					notSelectable = true
 					cellColor = tcell.ColorYellow
 				}
 
-				tui.PreviewTable.SetCell(i, j, tview.NewTableCell(cellValue).SetTextColor(cellColor))
+				tui.PreviewTable.SetCell(
+					i, j,
+					&tview.TableCell{
+						Text:          cellValue,
+						Color:         cellColor,
+						NotSelectable: notSelectable,
+					},
+				)
 			}
 		}
 		tui.PreviewTable.SetTitle(fmt.Sprintf("%s: %s", TitlePreviewView, label))
-		tui.PreviewTable.ScrollToBeginning().SetSelectable(true, false)
+		tui.PreviewTable.SetFixed(1, 1)
+		tui.PreviewTable.SetSelectable(true, false)
+		tui.PreviewTable.ScrollToBeginning()
 	})
 }
 
@@ -238,7 +249,7 @@ func NewTUI(appConfig internal.AppConfig, dataController internal.DataController
 	t.Sources = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
 	t.Schemas = tview.NewList().ShowSecondaryText(false)
 	t.Tables = tview.NewList().ShowSecondaryText(false)
-	t.PreviewTable = tview.NewTable().SetBorders(true).SetBordersColor(tcell.ColorDimGray)
+	t.PreviewTable = tview.NewTable().SetSelectedStyle(tcell.Style{}.Foreground(tcell.ColorBlack).Background(tcell.ColorWhite))
 	t.QueryInput = tview.NewInputField()
 	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooterView).SetTextColor(tcell.ColorGray)
 

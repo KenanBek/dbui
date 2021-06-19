@@ -105,7 +105,7 @@ func TestDataSource_PreviewTable(t *testing.T) {
 	preview, err := db.PreviewTable("world-db", "country_language")
 
 	assert.NoError(t, err)
-	assert.Len(t, preview, 11)
+	assert.Len(t, preview, 51)
 	assert.EqualValues(t, expectedPreview[0], preview[0])
 	assert.EqualValues(t, expectedPreview[1], preview[1])
 	assert.EqualValues(t, expectedPreview[2], preview[2])
