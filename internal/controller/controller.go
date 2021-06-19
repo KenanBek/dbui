@@ -6,6 +6,7 @@ import (
 	"github.com/kenanbek/dbui/internal"
 	"github.com/kenanbek/dbui/internal/mysql"
 	"github.com/kenanbek/dbui/internal/postgresql"
+	"github.com/kenanbek/dbui/internal/sqlite"
 )
 
 var (
@@ -50,6 +51,13 @@ func (c *Controller) getConnectionOrConnect(conn internal.DataSourceConfig) (int
 		return dbConn, nil
 	case "postgresql":
 		dbConn, err := postgresql.New(conn.DSN())
+		if err != nil {
+			return nil, err
+		}
+		c.connectionPool[conn.Alias()] = dbConn
+		return dbConn, nil
+	case "sqlite":
+		dbConn, err := sqlite.New(conn.DSN())
 		if err != nil {
 			return nil, err
 		}
