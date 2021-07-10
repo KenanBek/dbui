@@ -8,7 +8,7 @@ with the [tview](https://github.com/rivo/tview).
 [![Go Report Card](https://goreportcard.com/badge/github.com/kenanbek/dbui)](https://goreportcard.com/report/github.com/kenanbek/dbui)
 [![Codecov](https://img.shields.io/codecov/c/github/kenanbek/dbui)](https://app.codecov.io/gh/KenanBek/dbui/)
 
-![dbui screenshot](docs/screenshot1.png "DBUI: CLI for MySQL and PostgreSQL databases")
+![dbui screenshot](docs/dbui.gif "DBUI: CLI for MySQL, PostgreSQL, and SQLite databases")
 
 It provides features like,
 
