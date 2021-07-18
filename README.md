@@ -144,7 +144,10 @@ Check [this][wiki-brew-untap] for more information.
 #### Option 2: Go Get
 
 ```shell script
-go get github.com/kenanbek/dbui
+go get github.com/kenanbek/dbui # for latest release
+
+# or
+go get github.com/kenanbek/dbui@main # for the development version
 ```
 
 #### Option 3: Source Code (+demo databases)
