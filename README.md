@@ -59,6 +59,16 @@ with `sudo dpkg -i` and `sudo rpm -i` respectively.
 
 ## Demo
 
+You can run `dbui` with a demo data source.
+
+```shell script
+dbui -demo
+```
+
+This will open `dbui` with two dummy data sources where you can navigate through the demo data.
+
+To test it with a real database, you can use the following steps.
+
 ### Step 1. Install
 
 ```shell script
