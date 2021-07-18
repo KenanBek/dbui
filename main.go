@@ -37,9 +37,10 @@ func main() {
 	if fDemo {
 		appConfig = &config.AppConfig{
 			DataSourcesProp: []config.DataSourceConfig{
-				{AliasProp: "demo", TypeProp: "dummy", DSNProp: "dummy"},
+				{AliasProp: "demo1", TypeProp: "dummy", DSNProp: "dummy"},
+				{AliasProp: "demo2", TypeProp: "dummy", DSNProp: "dummy"},
 			},
-			DefaultProp: "demo",
+			DefaultProp: "demo1",
 		}
 
 		startApp(appConfig)

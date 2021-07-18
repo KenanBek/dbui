@@ -31,7 +31,7 @@ func (Dummy) ListSchemas() ([]string, error) {
 // ListTables exported.
 func (Dummy) ListTables(schema string) ([]string, error) {
 	if schema == "demo_errored" {
-		return nil, errors.New("failed to load the list of tables")
+		return nil, errors.New("demo error to show an error message")
 	}
 
 	return []string{
@@ -42,10 +42,6 @@ func (Dummy) ListTables(schema string) ([]string, error) {
 		fmt.Sprintf("demo_%s_table5", schema),
 		fmt.Sprintf("demo_%s_table6", schema),
 		fmt.Sprintf("demo_%s_table7", schema),
-		fmt.Sprintf("demo_%s_table8", schema),
-		fmt.Sprintf("demo_%s_table9", schema),
-		fmt.Sprintf("demo_%s_table10", schema),
-		fmt.Sprintf("demo_%s_table11", schema),
 	}, nil
 }
 
@@ -55,7 +51,12 @@ func (Dummy) PreviewTable(schema, table string) ([][]*string, error) {
 		{sptr("Name"), sptr("Surname"), sptr("Department"), sptr("Position")},
 		{sptr("Alex"), sptr("Doe"), sptr("IT"), sptr("Cool")},
 		{sptr("Bob"), sptr("Excellent"), sptr("Finance"), sptr("Cool")},
+		{sptr("Cindy"), sptr("Doe"), sptr("IT"), sptr("Cool")},
 		{sptr("Joe"), sptr("Cool"), sptr("Growth"), sptr("Cool")},
+		{sptr("John"), sptr("Doe"), sptr("Marketing"), sptr("Cool")},
+		{sptr("Sam"), sptr("Doe"), sptr("IT"), sptr("Cool")},
+		{sptr("Tom"), sptr("Doe"), sptr("IT"), sptr("Cool")},
+		{sptr("Martin"), sptr("Bob"), sptr("Growth"), sptr("Cool")},
 	}, nil
 }
 
