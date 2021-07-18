@@ -195,7 +195,7 @@ func (tui *TUI) previewSelectedTable() {
 	}
 
 	tui.showData(fmt.Sprintf("preview %s", table), data)
-	tui.showMessage(fmt.Sprintf("PreviewTable \"%s\" table executed succesfully!", table))
+	tui.showMessage(fmt.Sprintf("PreviewTable \"%s\" table executed successfully!", table))
 }
 
 func (tui *TUI) describeSelectedTable() {
@@ -218,7 +218,7 @@ func (tui *TUI) describeSelectedTable() {
 	}
 
 	tui.showData(fmt.Sprintf("describe %s", table), data)
-	tui.showMessage(fmt.Sprintf("Describe \"%s\" table executed succesfully!", table))
+	tui.showMessage(fmt.Sprintf("Describe \"%s\" table executed successfully!", table))
 }
 
 func (tui *TUI) setFocus(p tview.Primitive) {

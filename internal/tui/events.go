@@ -90,6 +90,6 @@ func (tui *TUI) queryExecuted(key tcell.Key) {
 		tui.showError(err)
 	} else {
 		tui.showData("query", data)
-		tui.showMessage(fmt.Sprintf("Query \"%s\" executed succesfully!", query))
+		tui.showMessage(fmt.Sprintf("Query \"%s\" executed successfully!", query))
 	}
 }
