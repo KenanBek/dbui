@@ -31,7 +31,7 @@ func (Dummy) ListSchemas() ([]string, error) {
 // ListTables exported.
 func (Dummy) ListTables(schema string) ([]string, error) {
 	if schema == "demo_errored" {
-		return nil, errors.New("demo error to show an error message")
+		return nil, errors.New("demo to show an error message")
 	}
 
 	return []string{
