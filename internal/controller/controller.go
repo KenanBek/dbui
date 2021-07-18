@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/kenanbek/dbui/internal"
+	"github.com/kenanbek/dbui/internal/dummy"
 	"github.com/kenanbek/dbui/internal/mysql"
 	"github.com/kenanbek/dbui/internal/postgresql"
 	"github.com/kenanbek/dbui/internal/sqlite"
@@ -42,6 +43,10 @@ func (c *Controller) getConnectionOrConnect(conn internal.DataSourceConfig) (int
 	}
 
 	switch conn.Type() {
+	case "dummy":
+		dbConn := dummy.Dummy{}
+		c.connectionPool[conn.Alias()] = dbConn
+		return dbConn, nil
 	case "mysql":
 		dbConn, err := mysql.New(conn.DSN())
 		if err != nil {

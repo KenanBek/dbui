@@ -19,82 +19,111 @@ var (
 func main() {
 	var (
 		fConfFile string
+		fDemo     bool
 		fConnDSN  string
 		fConnType string
+
+		appConfig *config.AppConfig
 	)
 
-	fmt.Printf("starting DBUI v%s (%s) \n", version, date)
+	fmt.Printf("Starting DBUI v%s (%s) \n", version, date)
 
 	flag.StringVar(&fConfFile, "f", "", "custom configuration file")
+	flag.BoolVar(&fDemo, "demo", false, "run with demo/dummy data source")
 	flag.StringVar(&fConnDSN, "dsn", "", "data source name")
 	flag.StringVar(&fConnType, "type", "", "data source type, used together with -dsn")
 	flag.Parse()
 
-	var appConfig *config.AppConfig
-	var err error
-	var customDSNMode = false
+	if fDemo {
+		appConfig = &config.AppConfig{
+			DataSourcesProp: []config.DataSourceConfig{
+				{AliasProp: "demo1", TypeProp: "dummy", DSNProp: "dummy"},
+				{AliasProp: "demo2", TypeProp: "dummy", DSNProp: "dummy"},
+			},
+			DefaultProp: "demo1",
+		}
+
+		startApp(appConfig)
+		return
+	}
 
 	if fConnDSN != "" {
 		if fConnType == "" {
 			fmt.Println("-dsn and -type flags must be used together")
+			fmt.Println("switching to configuration file mode, trying to load...")
 			time.Sleep(2 * time.Second)
 		} else {
 			appConfig = &config.AppConfig{
 				DataSourcesProp: []config.DataSourceConfig{},
 				DefaultProp:     "custom",
 			}
-			appConfig.DataSourcesProp = append(appConfig.DataSourcesProp, config.DataSourceConfig{AliasProp: "custom", TypeProp: fConnType, DSNProp: fConnDSN})
-			customDSNMode = true
+			appConfig.DataSourcesProp = append(
+				appConfig.DataSourcesProp,
+				config.DataSourceConfig{AliasProp: "custom", TypeProp: fConnType, DSNProp: fConnDSN},
+			)
+
+			startApp(appConfig)
+			return
 		}
 	}
 
-	// TODO: Split global app configuration from connection strings.
-	if !customDSNMode {
-		var configExitStatus = 0
-		var confPath string
-		if fConfFile != "" {
-			if _, err = os.Stat(fConfFile); err != nil {
-				fmt.Printf("configuration file `%s` does not exists\n", fConfFile)
-				os.Exit(1)
-			}
-			confPath = fConfFile
-		} else {
-			confPath = "dbui.yml"
-			if _, err = os.Stat(confPath); err != nil {
-				var userDir string
-				userDir, err = os.UserHomeDir()
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(configExitStatus)
-				}
+	appConfig = readConfig(fConfFile)
+	startApp(appConfig)
+}
 
-				confPath = path.Join(userDir, "dbui.yml")
-				if _, err = os.Stat(confPath); err != nil {
-					fmt.Printf("there is no `dbui.yml` file in the current (%s) nor user directory (%s)\n", "./dbui.yml", confPath)
-					fmt.Println("create one or use `-dsn` and `-type` args")
-					os.Exit(configExitStatus)
-				}
-			}
-		}
-
-		appConfig, err = config.New(confPath)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(configExitStatus)
-		}
-	}
+func startApp(appConfig *config.AppConfig) {
+	var exitStatus = 1
 
 	ctrl, err := controller.New(appConfig)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(exitStatus)
 	}
 
 	t := tui.NewTUI(appConfig, ctrl)
 	err = t.Start()
 	if err != nil {
-		// TODO: print stack trace for unexpected errors.
 		fmt.Printf("failed to start: %v\n", err)
-		os.Exit(1)
+		os.Exit(exitStatus)
 	}
+}
+
+func readConfig(customConfigFile string) *config.AppConfig {
+	var exitStatus = 0
+
+	var err error
+	var confPath string
+
+	if customConfigFile != "" {
+		if _, err = os.Stat(customConfigFile); err != nil {
+			fmt.Printf("configuration file `%s` does not exists\n", customConfigFile)
+			os.Exit(1)
+		}
+		confPath = customConfigFile
+	} else {
+		confPath = "dbui.yml"
+		if _, err = os.Stat(confPath); err != nil {
+			var userDir string
+			userDir, err = os.UserHomeDir()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(exitStatus)
+			}
+
+			confPath = path.Join(userDir, "dbui.yml")
+			if _, err = os.Stat(confPath); err != nil {
+				fmt.Printf("there is no `dbui.yml` file in the current (%s) nor user directory (%s)\n", "./dbui.yml", confPath)
+				fmt.Println("create one or use `-dsn` and `-type` args")
+				os.Exit(exitStatus)
+			}
+		}
+	}
+
+	appConfig, err := config.New(confPath)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(exitStatus)
+	}
+
+	return appConfig
 }
