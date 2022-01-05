@@ -5,26 +5,29 @@
 class Dbui < Formula
   desc "Database CLI for MySQL and PostgreSQL. More databases to come. Terminal User Interface Application."
   homepage "https://github.com/kenanbek/dbui"
-  version "0.6.0"
+  version "0.7.0"
   license "Apache 2.0"
-  bottle :unneeded
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/KenanBek/dbui/releases/download/v0.6.0/dbui_Darwin_x86_64.tar.gz"
-      sha256 "a40ca2656d95f2af7001391a33759b94463073711b9ecd4f28edf175ac89fd76"
+      url "https://github.com/KenanBek/dbui/releases/download/v0.7.0/dbui_Darwin_x86_64.tar.gz"
+      sha256 "c03eaf319800433fb36c7e88d59ed65569883e23709d03ee54c8664521a9c32b"
+
+      def install
+        bin.install "dbui"
+      end
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/KenanBek/dbui/releases/download/v0.6.0/dbui_Linux_x86_64.tar.gz"
-      sha256 "f83e5551bb0c9028bb21b134de86830367a108efd3dd7df054d22e42adeaca2d"
-    end
-  end
+      url "https://github.com/KenanBek/dbui/releases/download/v0.7.0/dbui_Linux_x86_64.tar.gz"
+      sha256 "9b214d0d281af8260f2f75e09bf272ff0bd455b2fcc37a86fd41ab8b44204a23"
 
-  def install
-    bin.install "dbui"
+      def install
+        bin.install "dbui"
+      end
+    end
   end
 
   test do
