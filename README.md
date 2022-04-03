@@ -10,7 +10,7 @@ with the [tview](https://github.com/rivo/tview).
 
 ![dbui screenshot](docs/dbui.gif "DBUI: CLI for MySQL, PostgreSQL, and SQLite databases")
 
-It provides features like,
+**dbui** provides features like,
 
 - Connect to multiple data sources and instances.
 - List all schemas in a selected data source.
@@ -59,17 +59,7 @@ with `sudo dpkg -i` and `sudo rpm -i` respectively.
 
 ## Demo
 
-You can run `dbui` with a demo data source.
-
-```shell script
-dbui -demo
-```
-
-This will open `dbui` with two dummy data sources where you can navigate through the demo data.
-
-To test it with a real database, you can use the following steps.
-
-### Step 1. Install
+### Install
 
 ```shell script
 brew tap kenanbek/dbui https://github.com/kenanbek/dbui
@@ -79,14 +69,28 @@ brew install dbui
 Other [installation options](#install). If you have installed the first versions of `dbui`, you might need to un-tap the
 old cask URL. Check [this][wiki-brew-untap] for more information.
 
-### Step 2. Run demo databases
+### Demo with in-memory dataset
+
+You can run `dbui` with a demo data source.
+
+```shell script
+dbui -demo
+```
+
+This command will open `dbui` with two dummy data sources, and you can navigate through the demo dataset.
+
+To test it with a real database, you can use the following steps.
+
+### Demo with Docker containers
+
+#### Step 1. Run demo databases
 
 ```shell script
 docker run -d --name dbui-mysql-demo -p 3316:3306 -e MYSQL_ROOT_PASSWORD=demo genschsa/mysql-employees
 docker run -d --name dbui-postgresql-demo -p 5432:5432 ghusta/postgres-world-db:2.4-alpine
 ```
 
-### Step 3. Create dbui.yml configuration file
+#### Step 2. Create dbui.yml configuration file
 
 Create `dbui.yml` file in the current folder with the following content:
 
@@ -106,7 +110,7 @@ defaut: employees
 
 More about [configuration files](#configuration).
 
-### Step 4. Start dbui
+#### Step 3. Start dbui
 
 ```shell script
 dbui
