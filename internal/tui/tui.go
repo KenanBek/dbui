@@ -56,14 +56,14 @@ var (
 // TUI implement terminal user interface features.
 // It also provides easy-to-use, easy-to-access abstraction over underlying tview components.
 type TUI struct {
-	// Internals
+	// Internal structures.
 	ac internal.AppConfig
 	dc internal.DataController
 
-	// States
+	// App level states.
 	focusMode bool
 
-	// View elements
+	// View components.
 	App          *tview.Application
 	Grid         *tview.Grid
 	Sources      *tview.List
@@ -245,7 +245,7 @@ func NewTUI(appConfig internal.AppConfig, dataController internal.DataController
 	t := TUI{ac: appConfig, dc: dataController}
 	t.App = tview.NewApplication()
 
-	// View elements
+	// Setup view elements.
 	t.Sources = tview.NewList().ShowSecondaryText(true).SetSecondaryTextColor(tcell.ColorDimGray)
 	t.Schemas = tview.NewList().ShowSecondaryText(false)
 	t.Tables = tview.NewList().ShowSecondaryText(false)
@@ -253,20 +253,20 @@ func NewTUI(appConfig internal.AppConfig, dataController internal.DataController
 	t.QueryInput = tview.NewInputField()
 	t.FooterText = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText(TitleFooterView).SetTextColor(tcell.ColorGray)
 
-	// Configure appearance
+	// Configure appearance.
 	t.Sources.SetTitle(TitleSourcesView).SetBorder(true)
 	t.Schemas.SetTitle(TitleSchemasView).SetBorder(true)
 	t.Tables.SetTitle(TitleTablesView).SetBorder(true)
 	t.PreviewTable.SetTitle(TitlePreviewView).SetBorder(true)
 	t.QueryInput.SetTitle(TitleQueryView).SetBorder(true)
 
-	// Input handlers
+	// Configure input handlers.
 	t.Tables.SetSelectedFunc(t.tableSelected)
 	t.Schemas.SetSelectedFunc(t.schemaSelected)
 	t.Sources.SetSelectedFunc(t.sourceSelected)
 	t.QueryInput.SetDoneFunc(t.queryExecuted)
 
-	// Layout
+	// Setup grid layout.
 	navigate := tview.NewGrid().SetRows(0, 0, 0).
 		AddItem(t.Sources, 0, 0, 1, 1, 0, 0, true).
 		AddItem(t.Schemas, 1, 0, 1, 1, 0, 0, false).

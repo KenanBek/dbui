@@ -104,7 +104,7 @@ func New(appConfig internal.AppConfig) (c *Controller, err error) {
 	return
 }
 
-// List exported.
+// List returns list of data sources available in the application.
 func (c *Controller) List() (result [][]string) {
 	result = [][]string{}
 
@@ -116,7 +116,7 @@ func (c *Controller) List() (result [][]string) {
 	return
 }
 
-// Switch exported.
+// Switch selects provided data source by its allias and tries to connect to it.
 func (c *Controller) Switch(alias string) (err error) {
 	if _, ok := c.dataSourceConfigs[alias]; !ok {
 		return ErrAliasDoesNotExists
@@ -126,7 +126,7 @@ func (c *Controller) Switch(alias string) (err error) {
 	return
 }
 
-// Current exported.
+// Current returns selected data source connection.
 func (c *Controller) Current() internal.DataSource {
 	return c.current
 }

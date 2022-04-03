@@ -14,6 +14,7 @@ func (tui *TUI) setupKeyboard() {
 		tui.QueryInput:   {tui.Sources, tui.PreviewTable},
 	}
 
+	// Setup app level keyboard shortcuts.
 	tui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case KeyMapping[KeySourcesOp]:
@@ -37,21 +38,28 @@ func (tui *TUI) setupKeyboard() {
 
 		/* Configuration for Tab & Backtab keys */
 
-		// on Tab set focus to the next element
+		// On Tab press set focus to the next element.
 		case tcell.KeyTab:
 			if focusMap, ok := focusMapping[tui.App.GetFocus()]; ok {
 				tui.setFocus(focusMap.next)
 			}
-			return nil // to avoid default Tab behaviour for the primitive
-		// on Backtab set focus to the prev element
+
+			// Return `nil` to avoid default Backtab behaviour for the primitive.
+			return nil
+
+		// On Backtab press set focus to the prev element.
 		case tcell.KeyBacktab:
 			if focusMap, ok := focusMapping[tui.App.GetFocus()]; ok {
 				tui.setFocus(focusMap.prev)
 			}
-			return nil // to avoid default Backtab behaviour for the primitive
+
+			// Return `nil` to avoid default Backtab behaviour for the primitive.
+			return nil
 		}
 		return event
 	})
+
+	// Setup Tables element level keyboard shortcuts.
 	tui.Tables.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'e':
