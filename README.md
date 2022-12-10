@@ -121,7 +121,7 @@ dbui
 - [Usage](#usage)
     - [Install](#install)
         - [Brew](#option-1-brew)
-        - [Go Get](#option-2-go-get)
+        - [Go Install](#option-2-go-install)
         - [Source Code](#option-3-source-code-demo-databases)
     - [Configuration](#configuration)
         - [Configuration Order](#configuration-order)
@@ -145,13 +145,10 @@ brew install dbui
 If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL.
 Check [this][wiki-brew-untap] for more information.
 
-#### Option 2: Go Get
+#### Option 2: Go Install
 
 ```shell script
-go get github.com/kenanbek/dbui # for latest release
-
-# or
-go get github.com/kenanbek/dbui@main # for the development version
+go install github.com/kenanbek/dbui@latest
 ```
 
 #### Option 3: Source Code (+demo databases)
