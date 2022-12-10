@@ -18,6 +18,10 @@ mock:
 lint:
 	golangci-lint run
 
+.PHONY: dummy-release
+dummy-release:
+	goreleaser --snapshot --skip-publish --rm-dist
+
 # Db
 
 .PHONY: demodbs

@@ -1,10 +1,10 @@
-name: Release
+name: Dummy Release
 on:
   push:
-    tags:
+    branches:
       - "*"
 jobs:
-  goreleaser:
+  dummy-goreleaser:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,6 +20,4 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          args: release --snapshot --skip-publish --rm-dist
