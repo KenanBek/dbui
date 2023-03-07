@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.4
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
-	github.com/opencontainers/runc v1.0.3 // indirect
+	github.com/opencontainers/runc v1.1.2 // indirect
 	github.com/ory/dockertest/v3 v3.8.0
 	github.com/rivo/tview v0.0.0-20220103094729-e3413f80f77b
 	github.com/stretchr/testify v1.7.0
