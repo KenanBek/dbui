@@ -282,7 +282,12 @@ func NewTUI(appConfig internal.AppConfig, dataController internal.DataController
 		AddItem(previewAndQuery, 0, 1, 1, 1, 0, 0, false).
 		AddItem(t.FooterText, 1, 0, 1, 2, 0, 0, false)
 
-	t.App.SetAfterDrawFunc(t.setAfterDrawFunc)
+	// Focus-driven border highlight. An after-draw hook is never an option here:
+	// queueing a draw from it re-fires the hook and the loop spins at 100% CPU (#54).
+	for _, box := range []*tview.Box{t.Sources.Box, t.Schemas.Box, t.Tables.Box, t.PreviewTable.Box, t.QueryInput.Box} {
+		box.SetFocusFunc(func() { box.SetBorderColor(tcell.ColorGreen) })
+		box.SetBlurFunc(func() { box.SetBorderColor(tcell.ColorWhite) })
+	}
 	t.setupKeyboard()
 
 	// TODO: Use-case when config was updated. Reload data sources.
