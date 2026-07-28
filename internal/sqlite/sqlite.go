@@ -17,7 +17,7 @@ type DataSource struct {
 // New initializes a new SQLite Datasource.
 func New(dsn string) (*DataSource, error) {
 	info, err := os.Stat(dsn)
-	if os.IsNotExist(err) {
+	if err != nil {
 		return nil, err
 	}
 

@@ -14,6 +14,15 @@ func Test_SQLiteFileNotExist(t *testing.T) {
 	require.Nil(t, ds)
 }
 
+func Test_SQLiteStatError(t *testing.T) {
+	// Parent path is a file, so os.Stat fails with ENOTDIR — a non-NotExist
+	// error that used to nil-deref in New.
+	ds, err := New("testdata/chinook.db/nested")
+
+	require.Error(t, err)
+	require.Nil(t, ds)
+}
+
 func Test_SQLiteDirectory(t *testing.T) {
 	ds, err := New("testdata")
 
