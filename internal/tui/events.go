@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -52,13 +53,22 @@ func (tui *TUI) tableSelected(index int, mainText string, secondaryText string, 
 }
 
 func (tui *TUI) queryExecuted(key tcell.Key) {
-	schema, err := tui.getSelectedSchema()
-
-	if err != nil {
-		tui.showError(err)
+	// The done func also fires on Esc, Up, Down, and Backtab — only Enter runs the query.
+	if key != tcell.KeyEnter {
+		return
 	}
 
-	query := tui.QueryInput.GetText()
+	query := strings.TrimSpace(tui.QueryInput.GetText())
+	if query == "" {
+		return
+	}
+
+	schema, err := tui.getSelectedSchema()
+	if err != nil {
+		tui.showError(err)
+		return
+	}
+
 	tui.showMessage("Executing...")
 	data, err := tui.dc.Current().Query(schema, query)
 	if err != nil {
