@@ -254,6 +254,10 @@ Use these keys when the data preview panel is active:
 The code and its sub-packages include various form of documentation: code comments or README files. Make sure to get
 familiar with them to know more about internal code structure. This section includes references to additional READMEs.
 
+Tests: `make test` runs the unit suite; `make test-integration` (requires Docker) additionally runs the per-driver
+integration tests and the cross-engine acceptance suite in `internal/acceptance` — the characterization suite every
+`DataSource` implementation must pass, and the exit gate for core rewrites.
+
 - [About `Controller` package - an abstraction over multiple data sources](internal/controller/README.md)
 
 DBUI is a work in progress, and any feedback/contributions are more than welcome.
