@@ -1,3 +1,4 @@
+// Package postgresql implements the DataSource interface for PostgreSQL.
 package postgresql
 
 import (
@@ -114,17 +115,23 @@ func (d *DataSource) ListTables(schema string) (tables []string, err error) {
 }
 
 // PreviewTable exported.
+//
+//nolint:revive // schema is ignored — known wrong PG schema model, fixed in the v1.0 dialect rewrite.
 func (d *DataSource) PreviewTable(schema string, table string) ([][]*string, error) {
 	return d.query(fmt.Sprintf("SELECT * FROM %s LIMIT 50", table))
 }
 
 // DescribeTable exported.
+//
+//nolint:revive // schema is ignored — known wrong PG schema model, fixed in the v1.0 dialect rewrite.
 func (d *DataSource) DescribeTable(schema string, table string) ([][]*string, error) {
 	query := fmt.Sprintf("SELECT column_name, data_type, character_maximum_length, column_default, is_nullable FROM INFORMATION_SCHEMA.COLUMNS where table_name = '%s'", table)
 	return d.query(query)
 }
 
 // Query exported.
+//
+//nolint:revive // schema is ignored — known wrong PG schema model, fixed in the v1.0 dialect rewrite.
 func (d *DataSource) Query(schema, query string) ([][]*string, error) {
 	return d.query(query)
 }

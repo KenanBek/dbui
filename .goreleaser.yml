@@ -1,107 +1,74 @@
+version: 2
+
 project_name: dbui
+
 before:
   hooks:
     - go mod tidy
+
 builds:
-  - goos:
+  - main: .
+    binary: dbui
+    env:
+      - CGO_ENABLED=0
+    goos:
       - linux
       - darwin
       - windows
     goarch:
       - amd64
-      - 386
-      - arm
       - arm64
-    goarm:
-      - 6
-    ignore:
-      - goos: windows
-        goarch: arm
-      - goos: windows
-        goarch: arm64
-    main: ./main.go
-    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
-    binary: dbui
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.date={{.Date}}
+
 archives:
-  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}'
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: x86
-      amd64: x86_64
-snapshot:
-  name_template: SNAPSHOT-{{ .Commit }}
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
-signs:
-  - cmd: gpg
-    args:
-      - --output
-      - $signature
-      - --detach-sig
-      - $artifact
-    signature: ${artifact}.sig
-    artifacts: none
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
 changelog:
+  use: github
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - '^conf:'
+      - "^docs:"
+      - "^chore:"
+
 release:
   github:
     owner: KenanBek
     name: dbui
   draft: true
   prerelease: auto
-  discussion_category_name: General
-  header: |
-    ## Features
 
-    List of newly introduced features:
-
-    - Item 1
-    - Item 2
-
-    ## Bug fixes
-
-    List of fixed issues:
-
-    - Item 1
-    - Item 2
-
-    ## Code changes
-
-    - Item 1
-    - Item 2
-  footer: |
-    ## Thanks!
-
-    Read more on our documentation page: https://kenanbek.gitbook.io/dbui/
 brews:
-  - tap:
+  - name: dbui
+    repository:
       owner: KenanBek
       name: dbui
-    name: dbui
-    description: "Database CLI for MySQL and PostgreSQL. More databases to come. Terminal User Interface Application."
+    directory: Formula
+    description: "Terminal UI for MySQL, PostgreSQL, and SQLite."
     homepage: "https://github.com/kenanbek/dbui"
-    license: "Apache 2.0"
-    folder: Formula
+    license: "Apache-2.0"
     commit_author:
       name: KenanBek
       email: mail@kenanbek.me
     install: bin.install "dbui"
     test: |
-      system "#{bin/dbui}"
+      system "#{bin}/dbui", "-version"
+
 nfpms:
   - maintainer: KenanBek
-    description: "Database CLI for MySQL and PostgreSQL. More databases to come. Terminal User Interface Application."
+    description: "Terminal UI for MySQL, PostgreSQL, and SQLite."
     homepage: "https://github.com/kenanbek/dbui"
-    license: "Apache 2.0"
+    license: "Apache-2.0"
     formats:
       - deb
       - rpm
-    replacements:
-      darwin: Darwin

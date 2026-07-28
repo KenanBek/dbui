@@ -1,7 +1,8 @@
+// Package config loads and represents the dbui application configuration.
 package config
 
 import (
-	"io/ioutil"
+	"os"
 
 	"github.com/kenanbek/dbui/internal"
 
@@ -29,7 +30,7 @@ type (
 
 // New parses provided file path and returns an instance of AppConfig with filled in values.
 func New(file string) (*AppConfig, error) {
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

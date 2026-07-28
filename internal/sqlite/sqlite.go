@@ -1,3 +1,4 @@
+// Package sqlite implements the DataSource interface for SQLite.
 package sqlite
 
 import (

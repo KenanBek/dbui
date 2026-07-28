@@ -46,7 +46,7 @@ func (Dummy) ListTables(schema string) ([]string, error) {
 }
 
 // PreviewTable exported.
-func (Dummy) PreviewTable(schema, table string) ([][]*string, error) {
+func (Dummy) PreviewTable(_, _ string) ([][]*string, error) {
 	return [][]*string{
 		{sptr("Name"), sptr("Surname"), sptr("Department"), sptr("Position")},
 		{sptr("Alex"), sptr("Doe"), sptr("IT"), sptr("Cool")},
@@ -61,7 +61,7 @@ func (Dummy) PreviewTable(schema, table string) ([][]*string, error) {
 }
 
 // DescribeTable exported.
-func (Dummy) DescribeTable(schema, table string) ([][]*string, error) {
+func (Dummy) DescribeTable(_, _ string) ([][]*string, error) {
 	return [][]*string{
 		{sptr("Column Name"), sptr("Column Type"), sptr("Size")},
 		{sptr("Name"), sptr("string"), sptr("12")},
@@ -72,7 +72,7 @@ func (Dummy) DescribeTable(schema, table string) ([][]*string, error) {
 }
 
 // Query exported.
-func (Dummy) Query(schema, query string) ([][]*string, error) {
+func (Dummy) Query(_, _ string) ([][]*string, error) {
 	return [][]*string{
 		{sptr("header1"), sptr("header2")},
 		{sptr("val1"), sptr("val2")},

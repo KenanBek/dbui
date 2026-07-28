@@ -1,3 +1,4 @@
+// Package mysql implements the DataSource interface for MySQL.
 package mysql
 
 import (
