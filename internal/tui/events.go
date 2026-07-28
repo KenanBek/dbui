@@ -6,31 +6,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func (tui *TUI) setAfterDrawFunc(screen tcell.Screen) {
-	tui.queueUpdateDraw(func() {
-		p := tui.App.GetFocus()
-
-		tui.Sources.SetBorderColor(tcell.ColorWhite)
-		tui.Schemas.SetBorderColor(tcell.ColorWhite)
-		tui.Tables.SetBorderColor(tcell.ColorWhite)
-		tui.PreviewTable.SetBorderColor(tcell.ColorWhite)
-		tui.QueryInput.SetBorderColor(tcell.ColorWhite)
-
-		switch p {
-		case tui.Sources:
-			tui.Sources.SetBorderColor(tcell.ColorGreen)
-		case tui.Schemas:
-			tui.Schemas.SetBorderColor(tcell.ColorGreen)
-		case tui.Tables:
-			tui.Tables.SetBorderColor(tcell.ColorGreen)
-		case tui.PreviewTable:
-			tui.PreviewTable.SetBorderColor(tcell.ColorGreen)
-		case tui.QueryInput:
-			tui.QueryInput.SetBorderColor(tcell.ColorGreen)
-		}
-	})
-}
-
 func (tui *TUI) sourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
 	err := tui.dc.Switch(mainText)
 	if err != nil {
