@@ -48,21 +48,25 @@ release:
   draft: true
   prerelease: auto
 
-brews:
+homebrew_casks:
   - name: dbui
     repository:
       owner: KenanBek
-      name: dbui
-    directory: Formula
+      name: homebrew-dbui
+    directory: Casks
     description: "Terminal UI for MySQL, PostgreSQL, and SQLite."
     homepage: "https://github.com/kenanbek/dbui"
-    license: "Apache-2.0"
     commit_author:
       name: KenanBek
       email: mail@kenanbek.me
-    install: bin.install "dbui"
-    test: |
-      system "#{bin}/dbui", "-version"
+    # dbui binaries are unsigned; strip the quarantine bit so Gatekeeper
+    # does not block the cask-installed binary.
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/dbui"]
+          end
 
 nfpms:
   - maintainer: KenanBek

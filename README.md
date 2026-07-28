@@ -62,9 +62,13 @@ with `sudo dpkg -i` and `sudo rpm -i` respectively.
 ### Install
 
 ```shell script
-brew tap kenanbek/dbui https://github.com/kenanbek/dbui
+brew tap kenanbek/dbui
 brew install dbui
 ```
+
+If you tapped the old in-repo location (`brew tap kenanbek/dbui https://github.com/kenanbek/dbui`),
+run `brew untap kenanbek/dbui` once before tapping again — the formula now lives in
+[KenanBek/homebrew-dbui](https://github.com/KenanBek/homebrew-dbui).
 
 Other [installation options](#install). If you have installed the first versions of `dbui`, you might need to un-tap the
 old cask URL. Check [this][wiki-brew-untap] for more information.
@@ -138,9 +142,13 @@ dbui
 #### Option 1: Brew
 
 ```shell script
-brew tap kenanbek/dbui https://github.com/kenanbek/dbui
+brew tap kenanbek/dbui
 brew install dbui
 ```
+
+If you tapped the old in-repo location (`brew tap kenanbek/dbui https://github.com/kenanbek/dbui`),
+run `brew untap kenanbek/dbui` once before tapping again — the formula now lives in
+[KenanBek/homebrew-dbui](https://github.com/KenanBek/homebrew-dbui).
 
 If you have installed the first versions of `dbui`, you might need to un-tap the old cask URL.
 Check [this][wiki-brew-untap] for more information.
