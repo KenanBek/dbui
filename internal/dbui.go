@@ -2,7 +2,7 @@ package internal
 
 import "log"
 
-//go:generate mockgen -source=dbui.go -destination=./controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
+//go:generate go run go.uber.org/mock/mockgen -source=dbui.go -destination=./controller/config_mock_test.go -package=controller -mock_names=AppConfig=MockAppConfig
 
 type (
 	// AppConfig sets interface for the app level configuration.
