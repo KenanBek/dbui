@@ -6,7 +6,7 @@ import (
 
 	"github.com/kenanbek/dbui/internal"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 
 	"github.com/stretchr/testify/suite"
 )
