@@ -1,3 +1,4 @@
+// Package tui implements the terminal user interface.
 package tui
 
 import (
@@ -7,7 +8,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func (tui *TUI) sourceSelected(index int, mainText string, secondaryText string, shortcut rune) {
+func (tui *TUI) sourceSelected(_ int, mainText string, _ string, _ rune) {
 	err := tui.dc.Switch(mainText)
 	if err != nil {
 		tui.showError(err)
@@ -24,7 +25,7 @@ func (tui *TUI) sourceSelected(index int, mainText string, secondaryText string,
 	tui.setFocus(tui.Schemas)
 }
 
-func (tui *TUI) schemaSelected(index int, mainText string, secondaryText string, shortcut rune) {
+func (tui *TUI) schemaSelected(_ int, mainText string, _ string, _ rune) {
 	tui.Tables.Clear()
 
 	tables, err := tui.dc.Current().ListTables(mainText)
@@ -41,7 +42,7 @@ func (tui *TUI) schemaSelected(index int, mainText string, secondaryText string,
 	tui.setFocus(tui.Tables)
 }
 
-func (tui *TUI) tableSelected(index int, mainText string, secondaryText string, shortcut rune) {
+func (tui *TUI) tableSelected(_ int, mainText string, secondaryText string, _ rune) {
 	data, err := tui.dc.Current().PreviewTable(secondaryText, mainText)
 	if err != nil {
 		tui.showError(err)

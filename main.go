@@ -1,3 +1,4 @@
+// Command dbui is a terminal UI for MySQL, PostgreSQL, and SQLite.
 package main
 
 import (

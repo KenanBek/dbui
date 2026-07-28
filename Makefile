@@ -22,9 +22,9 @@ mock:
 lint:
 	golangci-lint run
 
-.PHONY: dummy-release
-dummy-release:
-	goreleaser --snapshot --skip-publish --rm-dist
+.PHONY: snapshot
+snapshot:
+	go run github.com/goreleaser/goreleaser/v2@latest release --snapshot --clean
 
 # Db
 

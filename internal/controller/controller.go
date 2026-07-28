@@ -1,3 +1,5 @@
+// Package controller multiplexes the configured data sources behind one
+// switchable connection pool.
 package controller
 
 import (
@@ -106,7 +108,7 @@ func New(appConfig internal.AppConfig) (c *Controller, err error) {
 
 // List returns list of data sources available in the application.
 func (c *Controller) List() (result [][]string) {
-	result = [][]string{}
+	result = make([][]string, 0, len(c.dataSourceConfigs))
 
 	// TODO: refactor to keep the same order.
 	for alias, conf := range c.dataSourceConfigs {

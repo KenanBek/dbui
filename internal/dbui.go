@@ -1,3 +1,5 @@
+// Package internal defines the core interfaces every data source, the
+// controller, and the TUI are built against.
 package internal
 
 import "log"
