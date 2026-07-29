@@ -53,7 +53,7 @@ func TestMain(m *testing.M) {
 	}
 
 	dsn := fmt.Sprintf("user=world password=world123 host=%s port=%s dbname=world-db sslmode=disable", host, port.Port())
-	deadline := time.Now().Add(2 * time.Minute)
+	deadline := time.Now().Add(5 * time.Minute)
 	for {
 		db, err = postgresql.New(dsn)
 		if err == nil {

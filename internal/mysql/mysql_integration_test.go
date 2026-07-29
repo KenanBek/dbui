@@ -56,7 +56,7 @@ func TestMain(m *testing.M) {
 	}
 
 	dsn := fmt.Sprintf("root:demo@(%s:%s)/mysql", host, port.Port())
-	deadline := time.Now().Add(2 * time.Minute)
+	deadline := time.Now().Add(5 * time.Minute)
 	for {
 		db, err = mysql.New(dsn)
 		if err == nil {
