@@ -53,6 +53,7 @@ homebrew_casks:
     repository:
       owner: KenanBek
       name: homebrew-dbui
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Casks
     description: "Terminal UI for MySQL, PostgreSQL, and SQLite."
     homepage: "https://github.com/kenanbek/dbui"
