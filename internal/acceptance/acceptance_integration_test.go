@@ -126,7 +126,7 @@ func startPostgres(ctx context.Context) (testcontainers.Container, *postgresql.D
 func connectWithRetry[T internal.DataSource](connect func() (T, error)) (T, error) {
 	var ds T
 	var err error
-	deadline := time.Now().Add(2 * time.Minute)
+	deadline := time.Now().Add(5 * time.Minute)
 	for {
 		ds, err = connect()
 		if err == nil {

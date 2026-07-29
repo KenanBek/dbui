@@ -4,9 +4,8 @@
 with the [tview](https://github.com/rivo/tview).
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/kenanbek/dbui)](https://github.com/KenanBek/dbui/releases/latest)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kenanbek/dbui/Build)](https://github.com/KenanBek/dbui/actions/workflows/build.yml)
+[![Build](https://img.shields.io/github/actions/workflow/status/kenanbek/dbui/build.yml?branch=main)](https://github.com/KenanBek/dbui/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kenanbek/dbui)](https://goreportcard.com/report/github.com/kenanbek/dbui)
-[![Codecov](https://img.shields.io/codecov/c/github/kenanbek/dbui)](https://app.codecov.io/gh/KenanBek/dbui/)
 
 ![dbui screenshot](docs/dbui.gif "DBUI: CLI for MySQL, PostgreSQL, and SQLite databases")
 
@@ -23,7 +22,7 @@ with the [tview](https://github.com/rivo/tview).
     - full-screen and focus modes,
     - mouse support.
 
-Runs on Mac, Linux, and [Windows](https://kenanbek.gitbook.io/dbui/additional/windows).
+Runs on Mac, Linux, and Windows.
 
 ##### Linux
 
@@ -52,10 +51,7 @@ with `sudo dpkg -i` and `sudo rpm -i` respectively.
 
 ##### Known Issues
 
-- ❗️Critically low amount of tests.
-- ⚠️Having multiple connections and many queries triggers a high CPU load. Now
-  when [this PR](https://github.com/KenanBek/dbui/pull/28) merged, as a next step, I will work on profiling the
-  application.
+- ⚠️The TUI layer has no automated tests yet (planned together with its rewrite).
 
 ## Demo
 
@@ -109,7 +105,7 @@ dataSources:
   - alias: chinook
     type: sqlite
     dsn: "internal/sqlite/testdata/chinook.db"
-defaut: employees
+default: employees
 ```
 
 More about [configuration files](#configuration).
@@ -191,7 +187,7 @@ dataSources:
   - alias: world-db
     type: postgresql
     dsn: "user=world password=world123 host=localhost port=5432 dbname=world-db sslmode=disable"
-defaut: employees
+default: employees
 ```
 
 First, it checks in the current directory, then in the user's home directory.
