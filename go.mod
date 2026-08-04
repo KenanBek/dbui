@@ -11,7 +11,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.43.0
 	go.uber.org/mock v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
-	modernc.org/sqlite v1.54.0
+	modernc.org/sqlite v1.55.0
 )
 
 require (
